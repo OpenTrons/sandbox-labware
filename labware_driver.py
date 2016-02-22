@@ -5,11 +5,16 @@ import asyncio, json, copy
 import datetime
 import sys
 from collections import Callable
+import labware
 
 
 
 @asyncio.coroutine
 def simulator(reader, writer):
+	"""
+	"""
+	print(datetime.datetime.now(),' - labware_driver.simulator:')
+	print('\targs:',locals())
 	while True:
 		data = yield from reader.read(100)
 		print('data: ',data.decode())
@@ -19,8 +24,6 @@ def simulator(reader, writer):
 		yield from writer.drain()
 		writer.write(ack_ready)
 		yield from writer.drain()
-
-
 
 
 #class Output(asyncio.Protocol):
@@ -71,11 +74,9 @@ def simulator(reader, writer):
 #		self.data_buffer = ""
 #		loop = asyncio.get_event_loop()
 #		self.outer._on_connection_lost()
- 
 
 
-
-class labwareDriver(object):
+class LabwareDriver(object):
 	"""
 
 	How data flows to and from Smoothieboard:
@@ -125,20 +126,22 @@ class labwareDriver(object):
 	def __init__(self, simulate=False):
 		"""
 		"""
-		print(datetime.datetime.now(),' - driver.__init__:')
-		print('\tsimulate: ',simulate)
+		print(datetime.datetime.now(),' - labware_driver.__init__:')
+		print('\targs:',locals())
 		self.simulation = simulate
 		self.the_loop = asyncio.get_event_loop()
 		self.command_queue = []
 		self.simulation_queue = []
 	
 		#self.smoothie_transport = None
+		self.session = None
+
 		self.the_loop = None
 
 		self.state_dict = {
 			'name':'labware',
 			'simulation':False,
-		#	'connected':False,
+			'connected':False,
 		#	'transport':False,
 		#	'locked':False,
 		#	'ack_received':True,
@@ -167,12 +170,12 @@ class labwareDriver(object):
 		#    ...
 		#  }
 
-		#self.meta_callbacks_dict = {
-		#	'on_connect' : None,
-		#	'on_disconnect' : None,
+		self.meta_callbacks_dict = {
+			'on_connect' : None,
+			'on_disconnect' : None,
 		#	'on_empty_queue' : None,
 		#	'on_raw_data' : None
-		#}
+		}
 
 		#self.commands_dict = {
 		#	"move":{
@@ -211,41 +214,39 @@ class labwareDriver(object):
 	#	return self.configs()
 
 
-	#def meta_callbacks(self):
-	#	"""
-	#	"""
-	#	print(datetime.datetime.now(),' - driver.meta_callbacks')
-	#	return_dict = dict()
-	#	for name, value in self.meta_callbacks_dict.items():
-	#		if value is not None and isinstance(value, Callable):
-	#			return_dict[name] = value.__name__
-	#		else:
-	#			return_dict[name] = 'None'
-	#	# cannot just send back copy becuase NoneObject causes problem
-	#	#return copy.deepcopy(self.meta_callbacks_dict)
-	#	return return_dict
+	def meta_callbacks(self):
+		"""
+		"""
+		print(datetime.datetime.now(),' - labware_driver.meta_callbacks')
+		return_dict = dict()
+		for name, value in self.meta_callbacks_dict.items():
+			if value is not None and isinstance(value, Callable):
+				return_dict[name] = value.__name__
+			else:
+				return_dict[name] = 'None'
+		# cannot just send back copy becuase NoneObject causes problem
+		#return copy.deepcopy(self.meta_callbacks_dict)
+		return return_dict
 
 
-	#def set_meta_callback(self, name, callback):
-	#	"""
-	#	name should correspond 
-	#	"""
-	#	print(datetime.datetime.now(),' - driver.set_meta_callback:')
-	#	print('\tname: ',name)
-	#	print('\tcallback: ',callback)
-	#	if name in self.meta_callbacks_dict and isinstance(callback, Callable):
-	#		self.meta_callbacks_dict[name] = callback
-	#	else:
-	#		return '{error:name not in meta_callbacks or callback is not Callable}'
-	#	return self.meta_callbacks()
+	def set_meta_callback(self, name, callback):
+		"""
+		name should correspond 
+		"""
+		print(datetime.datetime.now(),' - labware_driver.set_meta_callback:')
+		print('\targs:',locals())
+		if name in self.meta_callbacks_dict and isinstance(callback, Callable):
+			self.meta_callbacks_dict[name] = callback
+		else:
+			return '{error:name not in meta_callbacks or callback is not Callable}'
+		return self.meta_callbacks()
 
 
 	def add_callback(self, callback, messages):
 		"""
 		"""
-		print(datetime.datetime.now(),' - driver.add_callback:')
-		print('\tcallback: ',callback)
-		print('\tmessages: ',messages)
+		print(datetime.datetime.now(),' - labware_driver.add_callback:')
+		print('\targs:',locals())
 		if callback.__name__ not in list(self.callbacks_dict):
 			if isinstance(messages, list):
 				self.callbacks_dict[callback.__name__] = {'callback':callback, 'messages':messages}
@@ -261,33 +262,37 @@ class labwareDriver(object):
 	def remove_callback(self, callback_name):
 		"""
 		"""
-		print(datetime.datetime.now(),' - driver.remove_callback')
-		print('\tcallback_name: ',callback_name)
+		print(datetime.datetime.now(),' - labware_driver.remove_callback:')
+		print('\targs:',locals())
 		del self.callbacks_dict[callback_name]
 
 
 	def flow(self):
 		"""
 		"""
-		print(datetime.datetime.now(),' - driver.flow')
+		print(datetime.datetime.now(),' - labware_driver.flow')
 		return copy.deepcopy(self.state_dict)
 
 
 	def clear_queue(self):
 		"""
 		"""
-		print(datetime.datetime.now(),' - driver.clear_queue')
+		print(datetime.datetime.now(),' - labware_driver.clear_queue')
 		self.command_queue = []
 		self.state_dict['queue_size'] = len(self.command_queue)
 	#	self.state_dict['ack_received'] = True
 	#	self.state_dict['ack_ready'] = True
 
 	
-	#def connect(self, device=None, port=None):
-	#	"""
-	#	"""
-	#	print(datetime.datetime.now(),' - driver.connect called:')
-	#	print('\tdevice: ',device)
+	def connect(self, sessionId):
+		"""
+		"""
+		print(datetime.datetime.now(),' - labware_driver.connect called:')
+		print('\targs:',locals())
+		self.session = Session(sessionID)
+		self._on_connection_made()
+
+
 	#	print('\tport: ',port)
 	#	self.the_loop = asyncio.get_event_loop()
 	#	#asyncio.async(serial.aio.create_serial_connection(self.the_loop, Output, '/dev/ttyUSB0', baudrate=115200))
@@ -315,11 +320,14 @@ class labwareDriver(object):
 	#		print(datetime.datetime.now(),' - error:driver.connects\n\r',sys.exc_info())
 			
 
-	#def disconnect(self):
-	#	"""
-	#	"""
-	#	print(datetime.datetime.now(),' - driver.disconnect')
+	def disconnect(self):
+		"""
+		"""
+		print(datetime.datetime.now(),' - labware_driver.disconnect')
 	#	self.smoothie_transport.close()
+		if self.session is not None:
+			self.session.close()
+		self._on_connection_lost()
 
 
 	#def commands(self):
@@ -339,8 +347,8 @@ class labwareDriver(object):
 
 
 	def send(self, message):
-		print(datetime.datetime.now(),' - driver.send:')
-		print('\tmessage: ',message)
+		print(datetime.datetime.now(),' - labware_driver.send:')
+		print('\targs:',locals())
 		self.state_dict['queue_size'] = len(self.command_queue)
 		#message = message + self.config_dict['message_ender']
 		if self.simulation:
@@ -356,6 +364,7 @@ class labwareDriver(object):
 		#self.smoothie_transport.write(message.encode())
 		print('CALL labware COMMAND HERE WITH:\n\
 		 	self._data_handler(  * * * BOOSTRAPPER CALL * * *  )')
+		self._data_handler(self.session.execute(command(message)))
 			#self.smoothie_streamwriter.drain()
 		#else:
 		#	print(datetime.datetime.now(),' - smoothie_transport is None????')
@@ -380,14 +389,15 @@ class labwareDriver(object):
 
 
 	def _add_to_command_queue(self, command):
-		print(datetime.datetime.now(),' - driver._add_to_command_queue:')
+		print(datetime.datetime.now(),' - labware_driver._add_to_command_queue:')
+		print('\targs:',locals())
 		self.command_queue.append(command)
 		self.state_dict['queue_size'] = len(self.command_queue)
 		self._step_command_queue()
 
 
 	def _step_command_queue(self):
-		print(datetime.datetime.now(),' - driver._step_command_queue')
+		print(datetime.datetime.now(),' - labware_driver._step_command_queue')
 	#	self.lock_check()
 	#	if self.state_dict['locked'] == False:
 	#		if len(self.command_queue) == 0:
@@ -398,8 +408,8 @@ class labwareDriver(object):
 
 
 	def _format_text_data(self, text_data):
-		print(datetime.datetime.now(),' - driver._format_text_data:')
-		print('\ttext_data: ',text_data)
+		print(datetime.datetime.now(),' - labware_driver._format_text_data:')
+		print('\targs:',locals())
 		return_list = []
 		remainder_data = text_data
 		while remainder_data.find(',')>=0:
@@ -412,8 +422,8 @@ class labwareDriver(object):
 
 
 	def _format_group(self, group_data):
-		print(datetime.datetime.now(),' - driver._format_group:')
-		print('\tgroup_data: ',group_data)
+		print(datetime.datetime.now(),' - labware_driver._format_group:')
+		print('\targs:',locals())
 		return_dict = dict()
 		remainder_data = group_data
 		if remainder_data.find(':')>=0:
@@ -441,8 +451,8 @@ class labwareDriver(object):
 		#	}
 		#
 		#
-		print(datetime.datetime.now(),' - driver._format_json_data:')
-		print('\tjson_data: ',json_data)
+		print(datetime.datetime.now(),' - labware_driver._format_json_data:')
+		print('\targs:',locals())
 		return_list = []
 		for name, value in json_data.items():
 			if isinstance(value, dict):
@@ -479,8 +489,8 @@ class labwareDriver(object):
 
 
 	def _process_message_dict(self, message_dict):
-		print(datetime.datetime.now(),' - driver._process_message_dict:')
-		print('\tmessage_dict: ',message_dict)
+		print(datetime.datetime.now(),' - labware_driver._process_message_dict:')
+		print('\targs:',locals())
 		# first, check if ack_received confirmation
 		#if self.config_dict['ack_received_message'] in list(message_dict) or self.config_dict['ack_received_message'] is None:
 		#	value = message_dict.get(self.config_dict['ack_received_message'])
@@ -542,13 +552,13 @@ class labwareDriver(object):
 
 
 # Device callbacks
-	#def _on_connection_made(self):
-	#	print(datetime.datetime.now(),' - driver._on_connection_made')
-	#	self.state_dict['connected'] = True
+	def _on_connection_made(self):
+		print(datetime.datetime.now(),' - labware_driver._on_connection_made')
+		self.state_dict['connected'] = True
 	#	self.state_dict['transport'] = True if self.smoothie_transport else False
-	#	print('*\t*\t* connected!\t*\t*\t*')
-	#	if isinstance(self.meta_callbacks_dict['on_connect'],Callable):
-	#		self.meta_callbacks_dict['on_connect']()
+		print('*\t*\t* connected!\t*\t*\t*')
+		if isinstance(self.meta_callbacks_dict['on_connect'],Callable):
+			self.meta_callbacks_dict['on_connect']()
 
 
 	#def _on_raw_data(self, data):
@@ -561,7 +571,8 @@ class labwareDriver(object):
 	def _data_handler(self, datum):
 		"""Handles incoming data from Smoothieboard that has already been split by delimiter
 		"""
-		print(datetime.datetime.now(),' - driver._data_handler')
+		print(datetime.datetime.now(),' - labware_driver._data_handler:')
+		print('\targs:',locals())
 		json_data = ""
 		text_data = datum
 
@@ -590,16 +601,18 @@ class labwareDriver(object):
 				print(datetime.datetime.now(),' - {error:driver._data_handler - json.loads(json_data)}\n\r',sys.exc_info())
 
 
-	#def _on_connection_lost(self):
-	#	print(datetime.datetime.now(),' - driver._on_connection_lost')
-	#	self.state_dict['connected'] = False
+	def _on_connection_lost(self):
+		print(datetime.datetime.now(),' - labware_driver._on_connection_lost')
+		self.state_dict['connected'] = False
 	#	self.state_dict['transport'] = True if self.smoothie_transport else False
-	#	print('*\t*\t* not connected!\t*\t*\t*')
-	#	if isinstance(self.meta_callbacks_dict['on_disconnect'],Callable):
-	#		self.meta_callbacks_dict['on_disconnect']()
+		print('*\t*\t* not connected!\t*\t*\t*')
+		if isinstance(self.meta_callbacks_dict['on_disconnect'],Callable):
+			self.meta_callbacks_dict['on_disconnect']()
 
 
 	def send_command(self, data):
+		print(datetime.datetime.now(),' - labware_driver.send_command:')
+		print('\targs:',locals())
 	#	"""
 	#
 	#	data should be in one of 2 forms:

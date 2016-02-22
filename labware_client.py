@@ -8,8 +8,8 @@ import uuid
 import datetime
 import sys
 
-from subscriber import Subscriber
-from publisher import Publisher
+from labware_subscriber import Subscriber
+from labware_publisher import Publisher
 from labware_harness import Harness
 from labware_driver import labwareDriver
 
@@ -54,7 +54,7 @@ class WampComponent(wamp.ApplicationSession):
         Starts instatiation of robot objects by calling :meth:`otone_client.instantiate_objects`.
         """
         print(datetime.datetime.now(),' - driver_client : WampComponent.onJoin:')
-        print('\tdetails: ',str(details))
+        print('\targs:',locals())
         if not self.factory._myAppSession:
             self.factory._myAppSession = self
     
@@ -77,7 +77,7 @@ class WampComponent(wamp.ApplicationSession):
         :param details: Close information.
         """
         print('driver_client : WampComponent.onLeave:')
-        print('\tdetails: ',details)
+        print('\targs:',locals())
         if self.factory._myAppSession == self:
             self.factory._myAppSession = None
         try:
@@ -138,13 +138,24 @@ if __name__ == '__main__':
         #
         #
         print('*\t*\t* define callbacks\t*\t*\t*')
-        def labware(name, data_dict):
+        def frontend(name, data_dict):
             """
             """
-            print(datetime.datetime.now(),' - labware_client.labware')
+            print(datetime.datetime.now(),' - labware_client.frontend')
+            print('\targs:',locals())
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
-            publisher.publish('frontend','','labware',name,dd_name,dd_value)
+            publisher.publish('frontend','',,'labware',name,dd_name,dd_value)
+
+
+        def driver(name, data_dict):
+            """
+            """
+            print(datetime.datetime.now(),' - labware_client.driver')
+            print('\targs:',locals())
+            dd_name = list(data_dict)[0]
+            dd_value = data_dict[dd_name]
+            publisher.publish('driver','',name,dd_name,dd_value)
 
         #def none(name, data_dict):
         #    """

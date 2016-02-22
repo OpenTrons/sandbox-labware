@@ -12,8 +12,8 @@ class Publisher:
     def __init__(self, session=None):
         """
         """
-        print(datetime.datetime.now(),' - publisher.__init__:')
-        print('\tsession: ',session)
+        print(datetime.datetime.now(),' - labware_publisher.__init__:')
+        print('\targs:',locals())
         
         self.topic = {
             'frontend' : 'com.opentrons.frontend',
@@ -104,21 +104,16 @@ class Publisher:
     def set_caller(self, session):
         """
         """
-        print(datetime.datetime.now(),' - publisher.set_caller:')
-        print('\tsession: ',session)
+        print(datetime.datetime.now(),' - labware_publisher.set_caller:')
+        print('\targs:',locals())
         self.caller = session
 
 
-    def publish(self,topic,to,type_,name,message,param):
+    def publish(self,topic,to,session_id,type_,name,message,param):
         """
         """
-        print(datetime.datetime.now(),' - publisher.publish:')
-        print('\ttopic: ',topic)
-        print('\tto: ',to)
-        print('\ttype_: ',type_)
-        print('\tname: ',name)
-        print('\tmessage: ',message)
-        print('\tparam: ',param)
+        print(datetime.datetime.now(),' - labware_publisher.publish:')
+        print('\targs:',locals())
         if self.caller is not None and topic is not None and type_ is not None:
             if name is None:
                 name = 'None'
@@ -128,7 +123,7 @@ class Publisher:
                 param = ''
             if self.caller is not None:
                 if self.caller._myAppSession is not None:
-                    msg = {'type':type_,'to':to,'from':self.id,'data':{'name':name,'message':{message:param}}}
+                    msg = {'type':type_,'to':to,'sessionID':session_id,'from':self.id,'data':{'name':name,'message':{message:param}}}
                     try:
                         if topic in self.topic:
                             print('TOPIC: ',self.topic)

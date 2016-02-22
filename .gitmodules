@@ -1,0 +1,3 @@
+[submodule "labware"]
+	path = labware
+	url = git@github.com:Opentrons/labware.git
