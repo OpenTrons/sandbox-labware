@@ -145,7 +145,7 @@ if __name__ == '__main__':
             print('\targs:',locals())
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
-            if sessionID == "":
+            if session_id == "":
                 publisher.publish('frontend',session_id,session_id,'labware',name,dd_name,dd_value)
             else:
                 publisher.publish(session_id,session_id,session_id,'labware',name,dd_name,dd_value)
@@ -158,7 +158,7 @@ if __name__ == '__main__':
             print('\targs:',locals())
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
-            publisher.publish('driver','',sessionID,name,dd_name,dd_value)
+            publisher.publish('driver','',session_id,name,dd_name,dd_value)
 
 
         # ADD METACALLBACKS VIA HARNESS:

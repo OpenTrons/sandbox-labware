@@ -185,12 +185,12 @@ class LabwareDriver(object):
 	#	self.state_dict['ack_ready'] = True
 
 
-	def connect(self, sessionId):
+	def connect(self, session_id):
 		"""
 		"""
 		print(datetime.datetime.now(),' - labware_driver.connect called:')
 		print('\targs:',locals())
-		self.session = Session(sessionID)
+		self.session = Session(session_id)
 		self._on_connection_made(session_id)
 			
 
