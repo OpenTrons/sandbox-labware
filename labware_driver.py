@@ -5,7 +5,8 @@ import asyncio, json, copy
 import datetime
 import sys
 from collections import Callable
-from .labware.engine.session import Session
+import labware
+from labware.engine.session import Session
 
 
 class LabwareDriver(object):
