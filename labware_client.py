@@ -11,7 +11,7 @@ import sys
 from labware_subscriber import Subscriber
 from labware_publisher import Publisher
 from labware_harness import Harness
-from labware_driver import labwareDriver
+from labware_driver import LabwareDriver
 
 from autobahn.asyncio import wamp, websocket
 from autobahn.asyncio.wamp import ApplicationSession, ApplicationRunner 
@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
         # ADD METACALLBACKS VIA HARNESS:
         print('*\t*\t* add callbacks via harness\t*\t*\t*')
-        
+
 
 
         # ADD CALLBACKS VIA HARNESS:
