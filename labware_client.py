@@ -168,8 +168,8 @@ if __name__ == '__main__':
 
         # ADD CALLBACKS VIA HARNESS:
         print('*\t*\t* add callbacks via harness\t*\t*\t*')
-        labware_harness.add_callback(publisher.id,'','driver', {driver_cb:['driver']})
-        labware_harness.add_callback(publisher.id,'','frontend', {frontend_cb:['frontend']})
+        labware_harness.add_callback(publisher.id,'','driver_cb', {driver_cb:['driver']})
+        labware_harness.add_callback(publisher.id,'','frontend_cb', {frontend_cb:['frontend']})
 
         #show what was added
         for d in labware_harness.drivers(publisher.id,'',None,None):
