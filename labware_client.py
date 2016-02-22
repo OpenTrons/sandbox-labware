@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
         # INSTANTIATE DRIVERS:
         print('*\t*\t* instantiate drivers\t*\t*\t*')
-        labbie_driver = labwareDriver()
+        labbie_driver = LabwareDriver()
 
 
         # ADD DRIVERS TO HARNESS 
