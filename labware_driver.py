@@ -9,73 +9,6 @@ import labware
 
 
 
-@asyncio.coroutine
-def simulator(reader, writer):
-	"""
-	"""
-	print(datetime.datetime.now(),' - labware_driver.simulator:')
-	print('\targs:',locals())
-	while True:
-		data = yield from reader.read(100)
-		print('data: ',data.decode())
-		ack_received = 'ok\r\n'.encode()
-		ack_ready = '{"stat":0}\r\n'.encode()
-		writer.write(ack_received)
-		yield from writer.drain()
-		writer.write(ack_ready)
-		yield from writer.drain()
-
-
-#class Output(asyncio.Protocol):
-#
-#
-#	def __init__(self, outer):
-#		self.outer = outer
-#		self._delimiter = "\n"
-#		self.data_buffer = ""
-#		self.transport = None
-#		self.data_last = ""
-#		self.datum_last = ""
-#
-#
-#	def connection_made(self, transport):
-#		print(datetime.datetime.now(),' - Output.connection_made:')
-#		print('\ttransport: ',transport)
-#		self.transport = transport
-#		self.outer.smoothie_transport = transport
-#		transport.write("M114\r\n".encode())
-#		loop = asyncio.get_event_loop()
-#		self.outer._on_connection_made()
-#
-#
-#	def data_received(self, data):
-#		#print(datetime.datetime.now(),' - Output.data_received:')
-#		#print('\tdata: '+str(data))
-#		self.data_buffer = self.data_buffer + data.decode()
-#		delimiter_index = self.data_buffer.rfind("\n")
-#		if delimiter_index >= 0:
-#			current_data = self.data_buffer[:delimiter_index]
-#			self.data_buffer = self.data_buffer[delimiter_index+1:]
-#			data_list = [e+self._delimiter for e in current_data.split(self._delimiter)]
-#			for datum in data_list:
-#				if datum != self.datum_last:
-#					self.datum_last = datum
-#					self.outer._smoothie_data_handler(datum)
-#		if data != self.data_last:
-#			self.data_last = data
-#			self.outer._on_raw_data(data)
-#
-#
-#	def connection_lost(self, exc):
-#		print(datetime.datetime.now(),' - Output.connection_lost:')
-#		print('\texc: ',exc)
-#		self.transport = None
-#		self.outer.smoothie_transport = None
-#		self.data_buffer = ""
-#		loop = asyncio.get_event_loop()
-#		self.outer._on_connection_lost()
-
-
 class LabwareDriver(object):
 	"""
 
@@ -142,23 +75,9 @@ class LabwareDriver(object):
 			'name':'labware',
 			'simulation':False,
 			'connected':False,
-		#	'transport':False,
-		#	'locked':False,
-		#	'ack_received':True,
-		#	'ack_ready':True,
 			'queue_size':0
 		}
 
-		#self.config_dict = {
-		#	'delimiter':"\n",
-		#	'message_ender':"\r\n",
-		#	'ack_received_message':"ok",
-		#	'ack_received_parameter':None,
-		#	'ack_received_value':None,
-		#	'ack_ready_message':"None",
-		#	'ack_ready_parameter':"stat",
-		#	'ack_ready_value':"0"
-		#}
 
 		self.callbacks_dict = {}
 		#  {
@@ -173,7 +92,7 @@ class LabwareDriver(object):
 		self.meta_callbacks_dict = {
 			'on_connect' : None,
 			'on_disconnect' : None,
-		#	'on_empty_queue' : None,
+			'on_empty_queue' : None,
 		#	'on_raw_data' : None
 		}
 
@@ -194,24 +113,6 @@ class LabwareDriver(object):
 			return_dict[name] = value['messages']
 		return return_dict
 		#return copy.deepcopy(self.callbacks_dict)
-
-
-	#def configs(self):
-	#	"""
-	#	"""
-	#	print(datetime.datetime.now(),' - driver.configs')
-	#	return copy.deepcopy(self.config_dict)
-
-
-	#def set_config(self, config, setting):
-	#	"""
-	#	"""
-	#	print(datetime.datetime.now(),' - driver.set_config:')
-	#	print('\tconfig: ',config)
-	#	print('\tsetting: ',setting)
-	#	if config in self.config_dict:
-	#		self.config_dict[config] = setting
-	#	return self.configs()
 
 
 	def meta_callbacks(self):
@@ -283,70 +184,27 @@ class LabwareDriver(object):
 	#	self.state_dict['ack_received'] = True
 	#	self.state_dict['ack_ready'] = True
 
-	
+
 	def connect(self, sessionId):
 		"""
 		"""
 		print(datetime.datetime.now(),' - labware_driver.connect called:')
 		print('\targs:',locals())
 		self.session = Session(sessionID)
-		self._on_connection_made()
-
-
-	#	print('\tport: ',port)
-	#	self.the_loop = asyncio.get_event_loop()
-	#	#asyncio.async(serial.aio.create_serial_connection(self.the_loop, Output, '/dev/ttyUSB0', baudrate=115200))
-	#	callbacker = Output(self)
-	#	try:
-	#		if self.the_loop.is_running():
-	#			self.the_loop.stop()
-	#		print(self.simulation)
-	#		if self.simulation:
-	#			#coro = self.the_loop.create_server(Simulator, '0.0.0.0', 3334)
-	#			#server = self.the_loop.run_until_complete(coro)
-	#			#asyncio.async(self.the_loop.create_server(Simulator,'0.0.0.0',3334))
-	#			print(simulator)
-	#			server = self.the_loop.run_until_complete(asyncio.start_server(simulator,'0.0.0.0',3334))
-	#			#asyncio.async(self.the_loop.create_connection(lambda: callbacker, host='0.0.0.0', port=3334))
-	#			#asyncio.async(self.the_loop.create_connection(lambda: callbacker, host='0.0.0.0', port=3334))
-	#			self.the_loop.run_until_complete(self.the_loop.create_connection(lambda: callbacker, host='0.0.0.0', port=3334))
-	#			
-	#			#yield from server.wait_closed()
-	#			print('here')
-	#		else:
-	#			asyncio.async(self.the_loop.create_connection(lambda: callbacker, host='0.0.0.0', port=3333))
-	#	
-	#	except:
-	#		print(datetime.datetime.now(),' - error:driver.connects\n\r',sys.exc_info())
+		self._on_connection_made(session_id)
 			
 
-	def disconnect(self):
+	def close(self, session_id):
 		"""
 		"""
-		print(datetime.datetime.now(),' - labware_driver.disconnect')
+		print(datetime.datetime.now(),' - labware_driver.close')
 	#	self.smoothie_transport.close()
 		if self.session is not None:
 			self.session.close()
-		self._on_connection_lost()
+		self._on_connection_lost(session_id)
 
 
-	#def commands(self):
-	#	"""
-	#	"""
-	#	print(datetime.datetime.now(),' - driver.commands')
-	#	return copy.deepcopy(self.commands_dict)
-
-
-	#def unlock(self):
-	#	"""
-	#	"""
-	#	print(datetime.datetime.now(),' - driver.unlock')
-	#	self.state_dict['ack_received'] = True
-	#	self.state_dict['ack_ready'] = True
-	#	self.lock_check()
-
-
-	def send(self, message):
+	def send(self, session_id, message):
 		print(datetime.datetime.now(),' - labware_driver.send:')
 		print('\targs:',locals())
 		self.state_dict['queue_size'] = len(self.command_queue)
@@ -354,44 +212,18 @@ class LabwareDriver(object):
 		if self.simulation:
 			self.simulation_queue.append(message)
 		
-		#if self.smoothie_transport is not None:
-		#print(datetime.datetime.now(),' - smoothie_transport not None')
-		#if self.lock_check() == False:
-		# should have already been checked
-		#self.state_dict['ack_received'] = False
-		#self.state_dict['ack_ready'] = False  # needs to be set here because not ready message from device takes too long, ack_received already received
-		#self.lock_check()
-		#self.smoothie_transport.write(message.encode())
 		print('CALL labware COMMAND HERE WITH:\n\
 		 	self._data_handler(  * * * BOOSTRAPPER CALL * * *  )')
-		self._data_handler(self.session.execute(command(message)))
-			#self.smoothie_streamwriter.drain()
-		#else:
-		#	print(datetime.datetime.now(),' - smoothie_transport is None????')
+		self._data_handler(session_id, self.session.execute(command(message)))
 
 
 
 # flow control 
-
-	#def lock_check(self):
-	#	print(datetime.datetime.now(),' - driver.lock_check')
-	#	#print("SmoothieDriver.lock check called")
-	#	print('\tack_received: ',self.state_dict['ack_received'])
-	#	print('\tack_ready: ',self.state_dict['ack_ready'])
-	#	if self.state_dict['ack_received'] == True and self.state_dict['ack_ready'] == True:
-	#		self.state_dict['locked'] = False
-	#		print('\tunlocked')
-	#		return False
-	#	else:
-	#		self.state_dict['locked'] = True
-	#		print('\tlocked')
-	#		return True
-
-
-	def _add_to_command_queue(self, command):
+	def _add_to_command_queue(self, session_id, command):
 		print(datetime.datetime.now(),' - labware_driver._add_to_command_queue:')
 		print('\targs:',locals())
-		self.command_queue.append(command)
+		cmd = {session_id,command}
+		self.command_queue.append(cmd)
 		self.state_dict['queue_size'] = len(self.command_queue)
 		self._step_command_queue()
 
@@ -488,49 +320,12 @@ class LabwareDriver(object):
 		return return_list
 
 
-	def _process_message_dict(self, message_dict):
+	def _process_message_dict(self, session_id, message_dict):
 		print(datetime.datetime.now(),' - labware_driver._process_message_dict:')
 		print('\targs:',locals())
-		# first, check if ack_received confirmation
-		#if self.config_dict['ack_received_message'] in list(message_dict) or self.config_dict['ack_received_message'] is None:
-		#	value = message_dict.get(self.config_dict['ack_received_message'])
-		#	if isinstance(value, dict):
-		#		if self.config_dict['ack_receieved_parameter'] is None:
-		#			self.state_dict['ack_received'] = True
-		#		else:
-		#			for value_name, value_value in value.items():
-		#				if value_name == self.config_dict['ack_received_parameter']:
-		#					if self.config_dict['ack_received_value'] is None or value_value == self.config_dict['ack_receieved_value']:
-		#						self.state_dict['ack_received'] = True
-		#	else:
-		#		if self.config_dict['ack_received_parameter'] is None:
-		#			if self.config_dict['ack_received_value'] is None or value == self.config_dict['ack_received_value']:
-		#				self.state_dict['ack_received'] = True
-
-		# second, check if ack_ready confirmation
-		#if self.config_dict['ack_ready_message'] in list(message_dict) or self.config_dict['ack_ready_message'] is None:
-		#	value = message_dict.get(self.config_dict['ack_ready_message'])
-		#	if isinstance(value, dict):
-		#		if self.config_dict['ack_ready_parameter'] is None:
-		#			self.state_dict['ack_ready'] = True
-		#		else:
-		#			for value_name, value_value in value.items():
-		#				if value_name == self.config_dict['ack_ready_parameter']:
-		#					if self.config_dict['ack_ready_value'] is None or str(value_value) == str(self.config_dict['ack_ready_value']):
-		#						self.state_dict['ack_ready'] = True
-		#					else:
-		#						self.state_dict['ack_ready'] = False
-		#	else:
-		#		if self.config_dict['ack_ready_parameter'] is None:
-		#			if self.config_dict['ack_ready_value'] is None or value == self.config_dict['ack_ready_value']:
-		#				self.state_dict['ack_ready'] = True
-		#			else:
-		#				self.state_dict['ack_ready'] = False
-		#		else:
-		#			if value == self.config_dict['ack_ready_parameter']:
-		#				self.state_dict['ack_ready'] = True
-		#			else:
-		#				self.state_dict['ack_ready'] = False					
+		# first, check if ack_received confirmation - NOT FOR LABWARE
+		
+		# second, check if ack_ready confirmation - NOT FOR LABWARE
 
 		# finally, pass messages to their respective callbacks based on callbacks and messages they're registered to receive
 		# eg:
@@ -547,28 +342,21 @@ class LabwareDriver(object):
 		for name_message, value in message_dict.items():
 			for callback_name, callback in self.callbacks_dict.items():
 				if name_message in callback['messages']:
-					callback['callback'](self.state_dict['name'], value)
+					callback['callback'](self.state_dict['name'], session_id, value)
 		self._step_command_queue()
 
 
 # Device callbacks
-	def _on_connection_made(self):
+	def _on_connection_made(self, session_id):
 		print(datetime.datetime.now(),' - labware_driver._on_connection_made')
 		self.state_dict['connected'] = True
 	#	self.state_dict['transport'] = True if self.smoothie_transport else False
 		print('*\t*\t* connected!\t*\t*\t*')
 		if isinstance(self.meta_callbacks_dict['on_connect'],Callable):
-			self.meta_callbacks_dict['on_connect']()
+			self.meta_callbacks_dict['on_connect'](session_id)
 
 
-	#def _on_raw_data(self, data):
-	#	print(datetime.datetime.now(),' - driver._on_raw_data:')
-	#	print('\tdata: ',data)
-	#	if isinstance(self.meta_callbacks_dict['on_raw_data'],Callable):
-	#		self.meta_callbacks_dict['on_raw_data']()
-
-
-	def _data_handler(self, datum):
+	def _data_handler(self, session_id, datum):
 		"""Handles incoming data from Smoothieboard that has already been split by delimiter
 		"""
 		print(datetime.datetime.now(),' - labware_driver._data_handler:')
@@ -586,7 +374,7 @@ class LabwareDriver(object):
 		if text_data != "":
 			print('\ttext_data: ',text_data)
 			text_message_list = self._format_text_data(text_data)
-			
+
 			for message in text_message_list:
 				self._process_message_dict(message)
 
@@ -596,21 +384,21 @@ class LabwareDriver(object):
 				json_data_dict = json.loads(json_data)
 				json_message_list = self._format_json_data(json_data_dict)
 				for message in json_message_list:
-					self._process_message_dict(message)
+					self._process_message_dict(session_id,message)
 			except:
 				print(datetime.datetime.now(),' - {error:driver._data_handler - json.loads(json_data)}\n\r',sys.exc_info())
 
 
-	def _on_connection_lost(self):
+	def _on_connection_lost(self, session_id):
 		print(datetime.datetime.now(),' - labware_driver._on_connection_lost')
 		self.state_dict['connected'] = False
 	#	self.state_dict['transport'] = True if self.smoothie_transport else False
 		print('*\t*\t* not connected!\t*\t*\t*')
 		if isinstance(self.meta_callbacks_dict['on_disconnect'],Callable):
-			self.meta_callbacks_dict['on_disconnect']()
+			self.meta_callbacks_dict['on_disconnect'](session_id)
 
 
-	def send_command(self, data):
+	def send_command(self, session_id, data):
 		print(datetime.datetime.now(),' - labware_driver.send_command:')
 		print('\targs:',locals())
 	#	"""
@@ -626,50 +414,8 @@ class LabwareDriver(object):
 	#	2. {command:params}
 	#		params --> {param1:value, ... , paramN:value}
 	#
-	#	"""
-	#	print(datetime.datetime.now(),' - driver.send_command:')
-	#	print('\tdata: ',data)
-	#	command_text = ""
-	#
-	#	# data in form 1
-	#	if isinstance(data, dict):
-	#		command = list(data)[0]
-	#	# data in form 2
-	#	elif isinstance(data, str):
-	#		command = data
-	#	
-	#	# check if command is in commands dictionary
-	#	if command in list(self.commands_dict):
-	#		command_text = self.commands_dict[command]["code"]
-	#		if isinstance(data, dict):
-	#			if isinstance(data[command], dict):
-	#				for param, val in data[command].items():
-	#					if param in self.commands_dict[command]["parameters"]:
-	#						command_text += " "
-	#						command_text += str(param)
-	#						command_text += str(val)
-	#		
-	#		self._add_to_command_queue(command_text)
-		self._add_to_command_queue(data)
-	#
-	#	else:	#check whether command is actually a code in commands dictionary
-	#		for cmd, dat in self.commands_dict.items():
-	#			if command == dat.get("code"):
-	#				# command is actually a code in the commands dictionary
-	#				command_text = command
-	#				if isinstance(data,dict):
-	#					if isinstance(data[command], dict):			
-	#						for param, val in data[command].items():
-	#							if param in val.parameters:
-	#								command_text += " "
-	#								command_text += str(param)
-	#								command_text += str(val)
-	#
-	#				self._add_to_command_queue(command_text)
-	#				break
-	#
-	#	#else:
-	#	#	print("command is NOT in list!")
+		self._add_to_command_queue(session_id, data)
+	
 
 
 

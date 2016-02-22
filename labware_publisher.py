@@ -129,6 +129,9 @@ class Publisher:
                             print('TOPIC: ',self.topic)
                             print(datetime.datetime.now(),'url topic: ',self.topic.get(topic))
                             self.caller._myAppSession.publish(self.topic.get(topic),json.dumps(msg))
+                        else:
+                            print('TO:',to)
+                            self.caller._myAppSession.publish('com.opentrons.'+to,json.dumps(msg))
                         #elif topic in self.clients:
                         #    print('CLIENTS: ',self.clients)
                         #    print(datetime.datetime.now(),'url topic: ',self.clients.get(topic))

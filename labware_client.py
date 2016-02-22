@@ -138,51 +138,41 @@ if __name__ == '__main__':
         #
         #
         print('*\t*\t* define callbacks\t*\t*\t*')
-        def frontend(name, data_dict):
+        def frontend_cb(name, session_id, data_dict):
             """
             """
             print(datetime.datetime.now(),' - labware_client.frontend')
             print('\targs:',locals())
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
-            publisher.publish('frontend','',,'labware',name,dd_name,dd_value)
+            if sessionID == "":
+                publisher.publish('frontend',session_id,session_id,'labware',name,dd_name,dd_value)
+            else:
+                publisher.publish(session_id,session_id,session_id,'labware',name,dd_name,dd_value)
 
 
-        def driver(name, data_dict):
+        def driver_cb(name, session_id, data_dict):
             """
             """
             print(datetime.datetime.now(),' - labware_client.driver')
             print('\targs:',locals())
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
-            publisher.publish('driver','',name,dd_name,dd_value)
+            publisher.publish('driver','',sessionID,name,dd_name,dd_value)
 
-        #def none(name, data_dict):
-        #    """
-        #    """
-        #    print(datetime.datetime.now(),' - driver_client.none:')
-        #    print('\tdata_dict: ',data_dict)
-        #    dd_name = list(data_dict)[0]
-        #    dd_value = data_dict[dd_name]
-        #    publisher.publish('frontend','','driver',name,list(data_dict)[0],dd_value)
 
-        #def positions(name, data_dict):
-        #    """
-        #    """
-        #    print(datetime.datetime.now(),' - driver_client.positions:')
-        #    print('\tdata_dict: ',data_dict)
-        #    dd_name = list(data_dict)[0]
-        #    dd_value = data_dict[dd_name]
-        #    publisher.publish('frontend','','driver',name,list(data_dict)[0],dd_value)
+        # ADD METACALLBACKS VIA HARNESS:
+        print('*\t*\t* add callbacks via harness\t*\t*\t*')
+        
 
 
         # ADD CALLBACKS VIA HARNESS:
         print('*\t*\t* add callbacks via harness\t*\t*\t*')
-        labware_harness.add_callback(publisher.id,'labware', {labware:['None']})
-        #driver_harness.add_callback(publisher.id,'smoothie', {positions:['M114']})
+        labware_harness.add_callback(publisher.id,'labware', {driver_cb:['driver']})
+        labware_harness.add_callback(publisher.id,'frontend', {frontend_cb:['frontend']})
 
         #show what was added
-        for d in labware_harness.drivers(publisher.id,None,None):
+        for d in labware_harness.drivers(publisher.id,'',None,None):
             print(labware_harness.callbacks(publisher.id,d, None))
 
         # CONNECT TO DRIVERS:
