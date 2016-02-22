@@ -126,7 +126,7 @@ if __name__ == '__main__':
 
         # ADD DRIVERS TO HARNESS 
         print('*\t*\t* add drivers to harness\t*\t*\t*')   
-        labware_harness.add_driver('frontend','labware',labbie_driver)
+        labware_harness.add_driver('frontend','','labware',labbie_driver)
         print(labware_harness.drivers(publisher.id,None,None))
 
         # DEFINE CALLBACKS:
