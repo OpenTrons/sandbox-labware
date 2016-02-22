@@ -173,7 +173,7 @@ if __name__ == '__main__':
 
         #show what was added
         for d in labware_harness.drivers(publisher.id,'',None,None):
-            print(labware_harness.callbacks(publisher.id,d, None))
+            print(labware_harness.callbacks(publisher.id,'',d,None))
 
         # CONNECT TO DRIVERS:
         print('*\t*\t* connect to drivers\t*\t*\t*')
