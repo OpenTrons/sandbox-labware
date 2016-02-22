@@ -15,8 +15,8 @@ class Subscriber():
         self.publisher = publisher
 
         self.in_dispatcher = {
-            'command': lambda from_,data: self.harness.send_command(from_,session_id,data),
-            'meta': lambda from_,data: self.harness.meta_command(from_,session_id,data)
+            'command': lambda from_,session_id,data: self.harness.send_command(from_,session_id,data),
+            'meta': lambda from_,session_id,data: self.harness.meta_command(from_,session_id,data)
         }
 
     def set_harness(self, harness):
@@ -26,7 +26,7 @@ class Subscriber():
 
 
     def dispatch_message(self, message):
-        print(datetime.datetime.now(),' - lavware_subscriber.dispatch_message:')
+        print(datetime.datetime.now(),' - labware_subscriber.dispatch_message:')
         print('\targs:',locals())
         try:
             dictum = collections.OrderedDict(json.loads(message.strip(), object_pairs_hook=collections.OrderedDict))
