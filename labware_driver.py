@@ -213,8 +213,8 @@ class LabwareDriver(object):
 			self.simulation_queue.append(message)
 		
 		print('CALL labware COMMAND HERE WITH:\n\
-		 	self._data_handler(  * * * BOOSTRAPPER CALL * * *  )')
-		session_id, command = message.items()[0]
+		 	self._data_handler(  * * * LABWARE CALL * * *  )')
+		for session_id, command in message.items(): pass
 		self._data_handler(session_id, self.session.execute(command))
 
 
