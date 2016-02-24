@@ -164,13 +164,15 @@ if __name__ == '__main__':
         def none_cb(name, session_id, data_dict):
             """
             """
-            print(datetime.datetime.now(),' - labware_client.frontend')
+            print(datetime.datetime.now(),' - labware_client.none_cb')
             print('\targs:',locals())
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
             if session_id == "":
                 publisher.publish('frontend',session_id,session_id,'labware',name,dd_name,dd_value)
             else:
+                # next line just for testing
+                publisher.publish('frontend',session_id,session_id,'labware',name,dd_name,dd_value)
                 publisher.publish(session_id,session_id,session_id,'labware',name,dd_name,dd_value)
 
 

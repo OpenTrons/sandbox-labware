@@ -344,7 +344,7 @@ class LabwareDriver(object):
 			for callback_name, callback in self.callbacks_dict.items():
 				if name_message in callback['messages']:
 					callback['callback'](self.state_dict['name'], session_id, value)
-		self._step_command_queue()
+		#self._step_command_queue()
 
 
 # Device callbacks
