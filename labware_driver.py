@@ -204,7 +204,7 @@ class LabwareDriver(object):
 		self._on_connection_lost(session_id)
 
 
-	def send(self, session_id, message):
+	def send(self, message):
 		print(datetime.datetime.now(),' - labware_driver.send:')
 		print('\targs:',locals())
 		self.state_dict['queue_size'] = len(self.command_queue)
@@ -214,7 +214,8 @@ class LabwareDriver(object):
 		
 		print('CALL labware COMMAND HERE WITH:\n\
 		 	self._data_handler(  * * * BOOSTRAPPER CALL * * *  )')
-		self._data_handler(session_id, self.session.execute(command(message)))
+		session_id, command = message.items()[0]
+		self._data_handler(session_id, self.session.execute(command))
 
 
 
