@@ -58,16 +58,16 @@ class WampComponent(wamp.ApplicationSession):
         if not self.factory._myAppSession:
             self.factory._myAppSession = self
     
-        #def handshake(client_data):
-        #    """
-        #    """
+        def handshake(client_data):
+            """
+            """
         #    #if debug == True:
-        #    print(datetime.datetime.now(),' - driver_client : WampComponent.handshake:')
+            print(datetime.datetime.now(),' - labware_client : WampComponent.handshake:')
         #    #if outer is not None:
         #    #outer.
-        #    publisher.handshake(client_data)
+            publisher.handshake(client_data)
 
-        #yield from self.subscribe(handshake, 'com.opentrons.driver_handshake')
+        yield from self.subscribe(handshake, 'com.opentrons.labware_handshake')
         yield from self.subscribe(subscriber.dispatch_message, 'com.opentrons.labware')
 
 
@@ -176,20 +176,31 @@ if __name__ == '__main__':
                 publisher.publish(session_id,session_id,session_id,'labware',name,dd_name,dd_value)
 
 
-        # ADD METACALLBACKS VIA HARNESS:
-        print('*\t*\t* add meta-callbacks via harness\t*\t*\t*')
-
-
-
         # ADD CALLBACKS VIA HARNESS:
         print('*\t*\t* add callbacks via harness\t*\t*\t*')
-        labware_harness.add_callback(publisher.id,'','labware', {driver_cb:['driver']})
-        labware_harness.add_callback(publisher.id,'','labware', {frontend_cb:['frontend']})
-        labware_harness.add_callback(publisher.id,'','labware', {none_cb:['None']})
+        labware_harness.add_callback('frontend','','labware', {driver_cb:['driver']})
+        labware_harness.add_callback('frontend','','labware', {frontend_cb:['frontend']})
+        labware_harness.add_callback('frontend','','labware', {none_cb:['None']})
 
         #show what was added
         for d in labware_harness.drivers(publisher.id,'',None,None):
             print(labware_harness.callbacks(publisher.id,'',d,None))
+
+
+        # ADD METACALLBACKS VIA HARNESS:
+        print('*\t*\t* add meta-callbacks via harness\t*\t*\t*')
+        def on_connect(self,session_id):
+            self.publish(session_id,session_id,session_id,'connect','labware','result','connected')
+
+        def on_disconnect(self,session_id):
+            self.publish(session_id,session_id,session_id,'connect','labware','result','disconnected')
+
+        def on_empty_queue(self,session_id):
+            self.publish(session_id,session_id,session_id,'queue','labware','result','empty')
+
+        labware_harness.set_meta_callback('frontend','','labware',{'on_connect':on_connect})
+        labware_harness.set_meta_callback('frontend','','labware',{'on_disconnect':on_disconnect})
+        labware_harness.set_meta_callback('frontend','','labware',{'on_empty_queue':on_empty_queue})
 
         # CONNECT TO DRIVERS:
         print('*\t*\t* connect to drivers\t*\t*\t*')
