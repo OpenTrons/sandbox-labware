@@ -363,21 +363,22 @@ class LabwareDriver(object):
 		print(datetime.datetime.now(),' - labware_driver._data_handler:')
 		print('\targs:',locals())
 		json_data = ""
-		text_data = datum
+		text_data = ""
+		if isinstance(datum,dict):
+			json_data = json.dumps(datum)
+		else:
+			text_data = str(datum)
 
-		#if self.config_dict['ack_received_message'] in datum:
-		#	self.ack_received = True
-
-		if datum.find('{')>=0:
-			json_data = datum[datum.find('{'):].replace('\n','').replace('\r','')
-			text_data = datum[:datum.index('{')]
+			if datum.find('{')>=0:
+				json_data = datum[datum.find('{'):].replace('\n','').replace('\r','')
+				text_data = datum[:datum.index('{')]
 
 		if text_data != "":
 			print('\ttext_data: ',text_data)
 			text_message_list = self._format_text_data(text_data)
 
-			for message in text_message_list:
-				self._process_message_dict(message)
+		for message in text_message_list:
+			self._process_message_dict(message)
 
 		if json_data != "":
 			print('\tjson_data: ',json_data)
