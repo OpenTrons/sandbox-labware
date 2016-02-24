@@ -222,7 +222,7 @@ class LabwareDriver(object):
 	def _add_to_command_queue(self, session_id, command):
 		print(datetime.datetime.now(),' - labware_driver._add_to_command_queue:')
 		print('\targs:',locals())
-		cmd = {session_id,command}
+		cmd = {session_id:command}
 		self.command_queue.append(cmd)
 		self.state_dict['queue_size'] = len(self.command_queue)
 		self._step_command_queue()
