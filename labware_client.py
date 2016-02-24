@@ -161,6 +161,19 @@ if __name__ == '__main__':
             publisher.publish('driver','',session_id,name,dd_name,dd_value)
 
 
+        def none_cb(name, session_id, data_dict):
+            """
+            """
+            print(datetime.datetime.now(),' - labware_client.frontend')
+            print('\targs:',locals())
+            dd_name = list(data_dict)[0]
+            dd_value = data_dict[dd_name]
+            if session_id == "":
+                publisher.publish('frontend',session_id,session_id,'labware',name,dd_name,dd_value)
+            else:
+                publisher.publish(session_id,session_id,session_id,'labware',name,dd_name,dd_value)
+
+
         # ADD METACALLBACKS VIA HARNESS:
         print('*\t*\t* add meta-callbacks via harness\t*\t*\t*')
 
@@ -170,6 +183,7 @@ if __name__ == '__main__':
         print('*\t*\t* add callbacks via harness\t*\t*\t*')
         labware_harness.add_callback(publisher.id,'','labware', {driver_cb:['driver']})
         labware_harness.add_callback(publisher.id,'','labware', {frontend_cb:['frontend']})
+        labware_harness.add_callback(publisher.id,'','labware', {none_cb:['None']})
 
         #show what was added
         for d in labware_harness.drivers(publisher.id,'',None,None):
