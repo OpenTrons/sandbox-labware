@@ -365,8 +365,8 @@ class LabwareDriver(object):
 		json_data = ""
 		text_data = datum
 
-		if self.config_dict['ack_received_message'] in datum:
-			self.ack_received = True
+		#if self.config_dict['ack_received_message'] in datum:
+		#	self.ack_received = True
 
 		if datum.find('{')>=0:
 			json_data = datum[datum.find('{'):].replace('\n','').replace('\r','')
