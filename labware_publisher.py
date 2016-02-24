@@ -51,17 +51,17 @@ class Publisher:
                         if 'message' in data_dict['data']:
                             if 'extend' in data_dict['data']['message']:
                                 print('handshake called again on client ',client_data['uuid'],'. We could have done something here to repopulate data')
-                                self.publish( client_id , client_id ,'handshake','driver','result','already_connected')
+                                self.publish( client_id , client_id , client_id ,'handshake','driver','result','already_connected')
                             if 'shake' in data_dict['data']['message']:
                                 self.publish_client_ids(client_id)
                 else:
                     print('* from is NOT a client')
                     if len(self.clients) > self.max_clients:
-                        self.publish( 'frontend', '' , 'handshake' , 'driver' , 'result' , 'fail' )
+                        self.publish( 'frontend', '' , 'handshake' , '' , 'driver' , 'result' , 'fail' )
                     else:
                         if client_id != "":
                             self.clients[client_id] = 'com.opentrons.'+client_id
-                            self.publish( 'frontend' , client_id , 'handshake', 'driver', 'result','success')
+                            self.publish( 'frontend' , client_id , client_id , 'handshake', 'driver', 'result','success')
                         else:
                             self.gen_client_id()
             else:
@@ -77,11 +77,11 @@ class Publisher:
     def gen_client_id(self):
         ret_id = ''
         if len(self.clients) > self.max_clients:
-            self.publish( 'frontend', '' , 'handshake' , 'driver' , 'result' , 'fail' )
+            self.publish( 'frontend', '' , '' , 'handshake' , 'driver' , 'result' , 'fail' )
         else:
             client_id = str(uuid.uuid4())
             self.clients[client_id] = 'com.opentrons.'+client_id
-            self.publish( 'frontend' , client_id , 'handshake' , 'driver' , 'result' , 'success' )
+            self.publish( 'frontend' , client_id , client_id , 'handshake' , 'driver' , 'result' , 'success' )
             ret_id = client_id
         return ret_id
 
