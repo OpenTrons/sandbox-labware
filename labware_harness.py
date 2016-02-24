@@ -125,7 +125,7 @@ class Harness(object):
 		print(datetime.datetime.now(),' - labware_harness.set_meta_callback:')
 		print('\targs:',locals())
 		if isinstance(param,dict):
-			self.driver_dict.get(name).set_meta_callback(from_, session_id, list(param)[0],list(param.values())[0])
+			self.driver_dict.get(name).set_meta_callback(list(param)[0],list(param.values())[0])
 		return_dict = self.driver_dict.get(name).meta_callbacks()
 		self._publisher.publish(from_,from_,session_id,'driver',name,'meta_callback',return_dict)
 		return return_dict

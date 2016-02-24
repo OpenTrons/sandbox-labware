@@ -34,11 +34,6 @@ class Publisher:
         if session is not None:
             self.caller = session
 
-        self.harness = None
-
-    def set_harness(self, harness):
-        self.harness = harness
-
 
     def handshake(self, data):
         print(datetime.datetime.now(),' - labware_publisher.handshake:')
