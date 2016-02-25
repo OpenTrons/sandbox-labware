@@ -189,13 +189,13 @@ if __name__ == '__main__':
 
         # ADD METACALLBACKS VIA HARNESS:
         print('*\t*\t* add meta-callbacks via harness\t*\t*\t*')
-        def on_connect(self,session_id):
+        def on_connect(session_id):
             self.publish(session_id,session_id,session_id,'connect','labware','result','connected')
 
-        def on_disconnect(self,session_id):
+        def on_disconnect(session_id):
             self.publish(session_id,session_id,session_id,'connect','labware','result','disconnected')
 
-        def on_empty_queue(self,session_id):
+        def on_empty_queue(session_id):
             self.publish(session_id,session_id,session_id,'queue','labware','result','empty')
 
         labware_harness.set_meta_callback('frontend','','labware',{'on_connect':on_connect})
