@@ -188,9 +188,9 @@ class LabwareDriver(object):
 		print(datetime.datetime.now(),' - labware_driver.clear_queue')
 		self.command_queue = []
 		self.state_dict['queue_size'] = len(self.command_queue)
-		return self.flow()
 	#	self.state_dict['ack_received'] = True
 	#	self.state_dict['ack_ready'] = True
+		return self.flow()
 
 
 	def connect(self, from_, session_id):
@@ -381,11 +381,12 @@ class LabwareDriver(object):
 		if isinstance(datum,dict):
 			json_data = json.dumps(datum)
 		else:
-			text_data = str(datum)
+			str_datum = str(datum)
+			text_data = str_datum
 
-			if datum.find('{')>=0:
-				json_data = datum[datum.find('{'):].replace('\n','').replace('\r','')
-				text_data = datum[:datum.index('{')]
+			if str_datum.find('{')>=0:
+				json_data = str_datum[str_datum.find('{'):].replace('\n','').replace('\r','')
+				text_data = str_datum[:str_datum.index('{')]
 
 		if text_data != "":
 			print('\ttext_data: ',text_data)
@@ -415,21 +416,23 @@ class LabwareDriver(object):
 
 
 	def send_command(self, from_, session_id, data):
+		"""
+	
+		data should be in one of 2 forms:
+	
+		1. string
+	
+		If there is additional information to go with the command, then it should
+		be in JSON format. We're not going to parse the string to try to get additional
+		values to go with the command
+	
+		2. {command:params}
+			params --> {param1:value, ... , paramN:value}
+		
+		"""
 		print(datetime.datetime.now(),' - labware_driver.send_command:')
 		print('\n\targs: ',locals(),'\n')
-	#	"""
-	#
-	#	data should be in one of 2 forms:
-	#
-	#	1. string
-	#
-	#	If there is additional information to go with the command, then it should
-	#	be in JSON format. We're not going to parse the string to try to get additional
-	#	values to go with the command
-	#
-	#	2. {command:params}
-	#		params --> {param1:value, ... , paramN:value}
-	#
+	
 		self._add_to_command_queue(from_, session_id, data)
 	
 

@@ -8,6 +8,7 @@ TODO:
 import labware_driver
 import sys
 import datetime
+import copy
 
 class Harness(object):
 
@@ -242,11 +243,12 @@ class Harness(object):
 		"""
 		print(datetime.datetime.now(),' - labware_harness.meta_commands:')
 		print('\n\targs: ',locals(),'\n')
+		return_dict = copy.deepcopy(self.meta_dict)
 		if from_ == "":
-			self._publisher.publish('frontend',from_,session_id,'labware',name,'meta_commands',copy.deepcopy(self.meta_dict))
+			self._publisher.publish('frontend',from_,session_id,'labware',name,'meta_commands',return_dict)
 		else:
-			self._publisher.publish(from_,from_,session_id,'labware',name,'meta_commands',copy.deepcopy(self.meta_dict))
-		return copy.deepcopy(self.meta_dict)
+			self._publisher.publish(from_,from_,session_id,'labware',name,'meta_commands',return_dict)
+		return return_dict
 
 	#def configs(self, from_, name, param):
 	#	"""
