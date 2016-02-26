@@ -110,9 +110,11 @@ if __name__ == '__main__':
                                                                 debug_wamp=False)
         loop = asyncio.get_event_loop()
 
+        print('END INIT...\n')
+
         # TRYING THE FOLLOWING IN INSTANTIATE OBJECTS vs here
         # INITIAL SETUP PUBLISHER, HARNESS, SUBSCRIBER
-        print('*\t*\t* initial setup - publisher, harness, subscriber\t*\t*\t*')
+        print(datetime.datetime.now(),' - INITIAL SETUP - publisher, harness, subscriber ','* * '*10)
         publisher = Publisher(session_factory)
         labware_harness = Harness(publisher)
         subscriber = Subscriber(labware_harness,publisher)
@@ -120,12 +122,12 @@ if __name__ == '__main__':
 
 
         # INSTANTIATE DRIVERS:
-        print('*\t*\t* instantiate drivers\t*\t*\t*')
+        print(datetime.datetime.now(),' - INSTANTIATE DRIVERS - labbie_driver ','* * '*10)
         labbie_driver = LabwareDriver()
 
 
-        # ADD DRIVERS TO HARNESS 
-        print('*\t*\t* add drivers to harness\t*\t*\t*')   
+        # ADD DRIVERS TO HARNESS
+        print(datetime.datetime.now(),' - ADD DRIVERS TO HARNESS ','* * '*10)   
         labware_harness.add_driver(publisher.id,'','labware',labbie_driver)
         print(labware_harness.drivers(publisher.id,'',None,None))
 
@@ -137,7 +139,7 @@ if __name__ == '__main__':
         #
         #
         #
-        print('*\t*\t* define callbacks\t*\t*\t*')
+        print(datetime.datetime.now(),' - DEFINE CALLBACKS AND ADD TO VIA HARNESS ','* * '*10)
         def frontend(name, from_, session_id, data_dict):
             """
             """
@@ -193,10 +195,7 @@ if __name__ == '__main__':
                 # next line just for testing
                 publisher.publish('frontend',from_,session_id,'labware',name,dd_name,dd_value)
                 
-
-
-        # ADD CALLBACKS VIA HARNESS:
-        print('*\t*\t* add callbacks via harness\t*\t*\t*')
+        # ADD TO HARNESS BELOW
         labware_harness.add_callback('frontend','','labware', {frontend:['frontend']})
         labware_harness.add_callback('driver','','labware', {driver:['driver']})
         labware_harness.add_callback('bootstrapper','','labware', {bootstrapper:['frontend']})
@@ -204,20 +203,22 @@ if __name__ == '__main__':
         # none is for debugging
         labware_harness.add_callback('frontend','','labware', {none:['None']})
 
-        #show what was added
-        for d in labware_harness.drivers(publisher.id,'',None,None):
-            print(labware_harness.callbacks(publisher.id,'',d,None))
-
 
         # ADD METACALLBACKS VIA HARNESS:
-        print('*\t*\t* add meta-callbacks via harness\t*\t*\t*')
+        print(datetime.datetime.now(),' - DEFINE AND ADD META-CALLBACKS VIA HARNESS ','* * '*10)
         def on_connect(from_,session_id):
+            print(datetime.datetime.now(),' - labware_client.on_connect')
+            print('\n\targs: ',locals(),'\n')
             publisher.publish(from_,from_,session_id,'connect','labware','result','connected')
 
         def on_disconnect(from_,session_id):
+            print(datetime.datetime.now(),' - labware_client.on_disconnect')
+            print('\n\targs: ',locals(),'\n')
             publisher.publish(from_,from_,session_id,'connect','labware','result','disconnected')
 
         def on_empty_queue(from_,session_id):
+            print(datetime.datetime.now(),' - labware_client.on_empty_queue')
+            print('\n\targs: ',locals(),'\n')
             publisher.publish(from_,from_,session_id,'queue','labware','result','empty')
 
         labware_harness.set_meta_callback(publisher.id,'','labware',{'on_connect':on_connect})
@@ -225,10 +226,10 @@ if __name__ == '__main__':
         labware_harness.set_meta_callback(publisher.id,'','labware',{'on_empty_queue':on_empty_queue})
 
         # CONNECT TO DRIVERS:
-        print('*\t*\t* connect to drivers\t*\t*\t*')
+        #print('*\t*\t* connect to drivers\t*\t*\t*')
         #driver_harness.connect(publisher.id,'smoothie',None)
 
-        print('END INIT')
+        print('\n END INIT...\n')
 
         make_connection()
 
