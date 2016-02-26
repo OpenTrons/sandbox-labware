@@ -195,7 +195,7 @@ class Harness(object):
 		print('\targs:',locals())
 		print('self.driver_dict: ',self.driver_dict)
 		print('self.driver_dict[',name,']: ',self.driver_dict[name])
-		self.driver_dict[name].connect(session_id)
+		self.driver_dict[name].connect(from_,session_id)
 
 
 	#def disconnect(self, from_, session_id, name, param):
@@ -215,7 +215,7 @@ class Harness(object):
 		"""
 		print(datetime.datetime.now(),' - labware_harness.close:')
 		print('\targs:',locals())
-		self.driver_dict.get(name).close(session_id)
+		self.driver_dict.get(name).close(from_,session_id)
 
 
 	#def commands(self, from_, name, param):
