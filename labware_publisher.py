@@ -13,7 +13,7 @@ class Publisher:
         """
         """
         print(datetime.datetime.now(),' - labware_publisher.__init__:')
-        print('\targs:',locals())
+        print('\n\targs: ',locals(),'\n')
         
         self.topic = {
             'frontend' : 'com.opentrons.frontend',
@@ -37,7 +37,7 @@ class Publisher:
 
     def handshake(self, data):
         print(datetime.datetime.now(),' - labware_publisher.handshake:')
-        print('\tdata: ',data)
+        print('\n\targs: ',locals(),'\n')
     
         data_dict = json.loads(data)
         if isinstance(data_dict, dict):
@@ -105,7 +105,7 @@ class Publisher:
         """
         """
         print(datetime.datetime.now(),' - labware_publisher.set_caller:')
-        print('\targs:',locals())
+        print('\n\targs: ',locals(),'\n')
         self.caller = session
 
 
@@ -113,7 +113,7 @@ class Publisher:
         """
         """
         print(datetime.datetime.now(),' - labware_publisher.publish:')
-        print('\targs:',locals())
+        print('\n\targs: ',locals(),'\n')
         if self.caller is not None and topic is not None and type_ is not None:
             if name is None:
                 name = 'None'
