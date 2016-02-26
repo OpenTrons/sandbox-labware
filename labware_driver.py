@@ -163,6 +163,7 @@ class LabwareDriver(object):
 				self.callbacks_dict[callback.__name__]['messages'].extend(messages)
 			else:
 				self.callbacks_dict[callback.__name__]['messages'].append(messages)
+		return self.callbacks()
 
 
 	def remove_callback(self, callback_name):
@@ -186,6 +187,7 @@ class LabwareDriver(object):
 		print(datetime.datetime.now(),' - labware_driver.clear_queue')
 		self.command_queue = []
 		self.state_dict['queue_size'] = len(self.command_queue)
+		return self.flow()
 	#	self.state_dict['ack_received'] = True
 	#	self.state_dict['ack_ready'] = True
 
