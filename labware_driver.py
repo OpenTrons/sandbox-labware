@@ -71,7 +71,7 @@ class LabwareDriver(object):
 
 		self.the_loop = None
 
-		self.current_info = {'current_id':"",'from':""}
+		self.current_info = {'session_id':"",'from':""}
 		self.connected_info = {'session_id':"",'from':""}
 		self.disconnected_info = {'session_id':"",'from':""}
 
