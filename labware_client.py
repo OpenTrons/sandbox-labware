@@ -139,7 +139,7 @@ if __name__ == '__main__':
         #
         #
         #
-        print(datetime.datetime.now(),' - DEFINE CALLBACKS AND ADD TO VIA HARNESS ','* * '*10)
+        print(datetime.datetime.now(),' - DEFINE CALLBACKS AND ADD VIA HARNESS ','* * '*10)
         def frontend(name, from_, session_id, data_dict):
             """
             """
@@ -198,8 +198,8 @@ if __name__ == '__main__':
         # ADD TO HARNESS BELOW
         labware_harness.add_callback('frontend','','labware', {frontend:['frontend']})
         labware_harness.add_callback('driver','','labware', {driver:['driver']})
-        labware_harness.add_callback('bootstrapper','','labware', {bootstrapper:['frontend']})
-        labware_harness.add_callback('labware','','labware', {labware:['frontend']})
+        labware_harness.add_callback('bootstrapper','','labware', {bootstrapper:['bootstrapper']})
+        labware_harness.add_callback('labware','','labware', {labware:['labware']})
         # none is for debugging
         labware_harness.add_callback('frontend','','labware', {none:['None']})
 
