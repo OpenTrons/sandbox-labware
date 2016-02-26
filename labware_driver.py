@@ -71,11 +71,16 @@ class LabwareDriver(object):
 
 		self.the_loop = None
 
+		self.current_info = {'current_id':"",'from':""}
+		self.connected_info = {'session_id':"",'from':""}
+		self.disconnected_info = {'session_id':"",'from':""}
+
 		self.state_dict = {
 			'name':'labware',
 			'simulation':False,
 			'connected':False,
-			'queue_size':0
+			'queue_size':0,
+			'locked':False
 		}
 
 
@@ -92,7 +97,7 @@ class LabwareDriver(object):
 		self.meta_callbacks_dict = {
 			'on_connect' : None,
 			'on_disconnect' : None,
-			'on_empty_queue' : None,
+			'on_empty_queue' : None
 		#	'on_raw_data' : None
 		}
 
@@ -185,28 +190,30 @@ class LabwareDriver(object):
 	#	self.state_dict['ack_ready'] = True
 
 
-	def connect(self, session_id):
+	def connect(self, from_, session_id):
 		"""
 		"""
 		print(datetime.datetime.now(),' - labware_driver.connect called:')
-		print('\targs:',locals())
+		print('\targs: ',locals())
+		self.connected_info = {'from':from_,'session_id':session_id}
 		self.session = Session(session_id)
-		self._on_connection_made(session_id)
+		self._on_connection_made()
 			
 
-	def close(self, session_id):
+	def close(self, from_, session_id):
 		"""
 		"""
 		print(datetime.datetime.now(),' - labware_driver.close')
 	#	self.smoothie_transport.close()
+		self.disconnected_info = {'from':from_,'session_id':session_id}
 		if self.session is not None:
 			self.session.close()
-		self._on_connection_lost(session_id)
+		self._on_connection_lost()
 
 
 	def send(self, message):
 		print(datetime.datetime.now(),' - labware_driver.send:')
-		print('\targs:',locals())
+		print('\targs: ',locals())
 		self.state_dict['queue_size'] = len(self.command_queue)
 		#message = message + self.config_dict['message_ender']
 		if self.simulation:
@@ -214,16 +221,19 @@ class LabwareDriver(object):
 		
 		print('CALL labware COMMAND HERE WITH:\n\
 		 	self._data_handler(  * * * LABWARE CALL * * *  )')
-		for session_id, command in message.items(): pass
-		self._data_handler(session_id, self.session.execute(command))
+		self.state_dict['locked'] = True
+		self.current_info = {'from':message['from'],'session_id':message['session_id']}
+		command = message['command']
+		self._data_handler(from_, session_id, self.session.execute(command))
 
 
 
 # flow control 
-	def _add_to_command_queue(self, session_id, command):
+
+	def _add_to_command_queue(self, from_, session_id, command):
 		print(datetime.datetime.now(),' - labware_driver._add_to_command_queue:')
-		print('\targs:',locals())
-		cmd = {session_id:command}
+		print('\targs: ',locals())
+		cmd = {'from':from_,'session_id':session_id,'command':command}
 		self.command_queue.append(cmd)
 		self.state_dict['queue_size'] = len(self.command_queue)
 		self._step_command_queue()
@@ -231,13 +241,12 @@ class LabwareDriver(object):
 
 	def _step_command_queue(self):
 		print(datetime.datetime.now(),' - labware_driver._step_command_queue')
-	#	self.lock_check()
-	#	if self.state_dict['locked'] == False:
-	#		if len(self.command_queue) == 0:
-	#			if isinstance(self.meta_callbacks_dict['on_empty_queue'],Callable):
-	#				self.meta_callbacks_dict['on_empty_queue']()
-	#		else:
-		self.send(self.command_queue.pop(0))
+		if self.state_dict['locked'] == False:
+			if len(self.command_queue) == 0:
+				if isinstance(self.meta_callbacks_dict['on_empty_queue'],Callable):
+					self.meta_callbacks_dict['on_empty_queue'](self.current_info['from'],self.current_info['session_id'])
+			else:
+				self.send(self.command_queue.pop(0))
 
 
 	def _format_text_data(self, text_data):
@@ -321,14 +330,11 @@ class LabwareDriver(object):
 		return return_list
 
 
-	def _process_message_dict(self, session_id, message_dict):
+	def _process_message_dict(self, from_, session_id, message_dict):
 		print(datetime.datetime.now(),' - labware_driver._process_message_dict:')
 		print('\targs:',locals())
-		# first, check if ack_received confirmation - NOT FOR LABWARE
-		
-		# second, check if ack_ready confirmation - NOT FOR LABWARE
 
-		# finally, pass messages to their respective callbacks based on callbacks and messages they're registered to receive
+		# first, pass messages to their respective callbacks based on callbacks and messages they're registered to receive
 		# eg:
 		#
 		#	message dict:
@@ -343,25 +349,30 @@ class LabwareDriver(object):
 		for name_message, value in message_dict.items():
 			for callback_name, callback in self.callbacks_dict.items():
 				if name_message in callback['messages']:
-					callback['callback'](self.state_dict['name'], session_id, value)
-		#self._step_command_queue()
+					callback['callback'](self.state_dict['name'], from_, session_id, value)
+		
+		# second, check if ack_received confirmation - NOT FOR LABWARE
+		
+		# third, check if ack_ready confirmation - NOT FOR LABWARE
+		self.state_dict['locked'] = False
+		self._step_command_queue()
 
 
 # Device callbacks
-	def _on_connection_made(self, session_id):
+	def _on_connection_made(self):
 		print(datetime.datetime.now(),' - labware_driver._on_connection_made')
 		self.state_dict['connected'] = True
 	#	self.state_dict['transport'] = True if self.smoothie_transport else False
 		print('*\t*\t* connected!\t*\t*\t*')
 		if isinstance(self.meta_callbacks_dict['on_connect'],Callable):
-			self.meta_callbacks_dict['on_connect'](session_id)
+			self.meta_callbacks_dict['on_connect'](self.connected_info['form'],self.connected_info['session_id'])
 
 
-	def _data_handler(self, session_id, datum):
+	def _data_handler(self, from_, session_id, datum):
 		"""Handles incoming data from Smoothieboard that has already been split by delimiter
 		"""
 		print(datetime.datetime.now(),' - labware_driver._data_handler:')
-		print('\targs:',locals())
+		print('\targs: ',locals())
 		json_data = ""
 		text_data = ""
 		if isinstance(datum,dict):
@@ -378,7 +389,7 @@ class LabwareDriver(object):
 			text_message_list = self._format_text_data(text_data)
 
 			for message in text_message_list:
-				self._process_message_dict(message)
+				self._process_message_dict(from_,session_id,message)
 
 		if json_data != "":
 			print('\tjson_data: ',json_data)
@@ -386,21 +397,21 @@ class LabwareDriver(object):
 				json_data_dict = json.loads(json_data)
 				json_message_list = self._format_json_data(json_data_dict)
 				for message in json_message_list:
-					self._process_message_dict(session_id,message)
+					self._process_message_dict(from_,session_id,message)
 			except:
 				print(datetime.datetime.now(),' - {error:driver._data_handler - json.loads(json_data)}\n\r',sys.exc_info())
 
 
-	def _on_connection_lost(self, session_id):
+	def _on_connection_lost(self):
 		print(datetime.datetime.now(),' - labware_driver._on_connection_lost')
 		self.state_dict['connected'] = False
 	#	self.state_dict['transport'] = True if self.smoothie_transport else False
 		print('*\t*\t* not connected!\t*\t*\t*')
 		if isinstance(self.meta_callbacks_dict['on_disconnect'],Callable):
-			self.meta_callbacks_dict['on_disconnect'](session_id)
+			self.meta_callbacks_dict['on_disconnect'](self.disconnected_info['from'],self.disconnected_info['session_id'])
 
 
-	def send_command(self, session_id, data):
+	def send_command(self, from_, session_id, data):
 		print(datetime.datetime.now(),' - labware_driver.send_command:')
 		print('\targs:',locals())
 	#	"""
@@ -416,7 +427,7 @@ class LabwareDriver(object):
 	#	2. {command:params}
 	#		params --> {param1:value, ... , paramN:value}
 	#
-		self._add_to_command_queue(session_id, data)
+		self._add_to_command_queue(from_, session_id, data)
 	
 
 

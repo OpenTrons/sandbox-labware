@@ -54,7 +54,7 @@ class WampComponent(wamp.ApplicationSession):
         Starts instatiation of robot objects by calling :meth:`otone_client.instantiate_objects`.
         """
         print(datetime.datetime.now(),' - driver_client : WampComponent.onJoin:')
-        print('\targs:',locals())
+        print('\targs: ',locals())
         if not self.factory._myAppSession:
             self.factory._myAppSession = self
     
@@ -126,7 +126,7 @@ if __name__ == '__main__':
 
         # ADD DRIVERS TO HARNESS 
         print('*\t*\t* add drivers to harness\t*\t*\t*')   
-        labware_harness.add_driver('frontend','','labware',labbie_driver)
+        labware_harness.add_driver(publisher.id,'','labware',labbie_driver)
         print(labware_harness.drivers(publisher.id,'',None,None))
 
         # DEFINE CALLBACKS:
@@ -138,49 +138,71 @@ if __name__ == '__main__':
         #
         #
         print('*\t*\t* define callbacks\t*\t*\t*')
-        def frontend_cb(name, session_id, data_dict):
+        def frontend(name, from_, session_id, data_dict):
             """
             """
             print(datetime.datetime.now(),' - labware_client.frontend')
-            print('\targs:',locals())
+            print('\targs: ',locals())
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
-            if session_id == "":
-                publisher.publish('frontend',session_id,session_id,'labware',name,dd_name,dd_value)
-            else:
-                publisher.publish(session_id,session_id,session_id,'labware',name,dd_name,dd_value)
+            publisher.publish('frontend',from_,session_id,'labware',name,dd_name,dd_value)
+            
 
-
-        def driver_cb(name, session_id, data_dict):
+        def driver(name, from_, session_id, data_dict):
             """
             """
             print(datetime.datetime.now(),' - labware_client.driver')
-            print('\targs:',locals())
+            print('\targs: ',locals())
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
-            publisher.publish('driver','',session_id,name,dd_name,dd_value)
+            publisher.publish('driver',from_,session_id,name,dd_name,dd_value)
 
 
-        def none_cb(name, session_id, data_dict):
+        def bootstrapper(name, from_, session_id, data_dict):
+            """
+            """
+            print(datetime.datetime.now(),' - labware_client.bootstrapper')
+            print('\targs: ',locals())
+            dd_name = list(data_dict)[0]
+            dd_value = data_dict[dd_name]
+            publisher.publish('bootstrapper','',session_id,name,dd_name,dd_value)
+
+
+        def labware(name, from_, session_id, data_dict):
+            """
+            """
+            print(datetime.datetime.now(),' - labware_client.labware')
+            print('\targs: ',locals())
+            dd_name = list(data_dict)[0]
+            dd_value = data_dict[dd_name]
+            publisher.publish('labware','',session_id,name,dd_name,dd_value)
+
+
+
+        def none(name, from_, session_id, data_dict):
             """
             """
             print(datetime.datetime.now(),' - labware_client.none_cb')
-            print('\targs:',locals())
+            print('\targs: ',locals())
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
-            if session_id == "":
-                publisher.publish('frontend',session_id,session_id,'labware',name,dd_name,dd_value)
+            if from_ != session_id:
+                publisher.publish('frontend',from_,session_id,'labware',name,dd_name,dd_value)
+                publisher.publish(from_,from_,session_id,'labware',name,dd_name,dd_value)
             else:
                 # next line just for testing
-                publisher.publish('frontend',session_id,session_id,'labware',name,dd_name,dd_value)
-                publisher.publish(session_id,session_id,session_id,'labware',name,dd_name,dd_value)
+                publisher.publish('frontend',from_,session_id,'labware',name,dd_name,dd_value)
+                
 
 
         # ADD CALLBACKS VIA HARNESS:
         print('*\t*\t* add callbacks via harness\t*\t*\t*')
-        labware_harness.add_callback('frontend','','labware', {driver_cb:['driver']})
-        labware_harness.add_callback('frontend','','labware', {frontend_cb:['frontend']})
-        labware_harness.add_callback('frontend','','labware', {none_cb:['None']})
+        labware_harness.add_callback('frontend','','labware', {frontend:['frontend']})
+        labware_harness.add_callback('driver','','labware', {driver:['driver']})
+        labware_harness.add_callback('bootstrapper','','labware', {bootstrapper:['frontend']})
+        labware_harness.add_callback('labware','','labware', {labware:['frontend']})
+        # none is for debugging
+        labware_harness.add_callback('frontend','','labware', {none:['None']})
 
         #show what was added
         for d in labware_harness.drivers(publisher.id,'',None,None):
@@ -189,18 +211,18 @@ if __name__ == '__main__':
 
         # ADD METACALLBACKS VIA HARNESS:
         print('*\t*\t* add meta-callbacks via harness\t*\t*\t*')
-        def on_connect(session_id):
-            publisher.publish(session_id,session_id,session_id,'connect','labware','result','connected')
+        def on_connect(from_,session_id):
+            publisher.publish(from_,from_,session_id,'connect','labware','result','connected')
 
-        def on_disconnect(session_id):
-            publisher.publish(session_id,session_id,session_id,'connect','labware','result','disconnected')
+        def on_disconnect(from_,session_id):
+            publisher.publish(from_,from_,session_id,'connect','labware','result','disconnected')
 
-        def on_empty_queue(session_id):
-            publisher.publish(session_id,session_id,session_id,'queue','labware','result','empty')
+        def on_empty_queue(from_,session_id):
+            publisher.publish(from_,from_,session_id,'queue','labware','result','empty')
 
-        labware_harness.set_meta_callback('frontend','','labware',{'on_connect':on_connect})
-        labware_harness.set_meta_callback('frontend','','labware',{'on_disconnect':on_disconnect})
-        labware_harness.set_meta_callback('frontend','','labware',{'on_empty_queue':on_empty_queue})
+        labware_harness.set_meta_callback(publisher.id,'','labware',{'on_connect':on_connect})
+        labware_harness.set_meta_callback(publisher.id,'','labware',{'on_disconnect':on_disconnect})
+        labware_harness.set_meta_callback(publisher.id,'','labware',{'on_empty_queue':on_empty_queue})
 
         # CONNECT TO DRIVERS:
         print('*\t*\t* connect to drivers\t*\t*\t*')
