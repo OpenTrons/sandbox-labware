@@ -113,8 +113,9 @@ class Harness(object):
 		"""
 		print(datetime.datetime.now(),' - labware_harness.meta_callbacks:')
 		print('\n\targs: ',locals(),'\n')
-		self._publisher.publish(from_,from_,session_id,'driver',name,'meta_callbacks',self.driver_dict[name].meta_callbacks())
-		return self.driver_dict[name].meta_callbacks
+		return_dict = self.driver_dict[name].meta_callbacks()
+		self._publisher.publish(from_,from_,session_id,'driver',name,'meta_callbacks',return_dict)
+		return return_dict
 
 
 	def set_meta_callback(self, from_, session_id, name, param):
