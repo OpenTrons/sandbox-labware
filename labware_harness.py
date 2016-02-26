@@ -15,7 +15,7 @@ class Harness(object):
 		"""
 		"""
 		print(datetime.datetime.now(),' - labware_harness.__init__:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		self._publisher = publisher
 		self.driver_dict = {}
 		self.meta_dict = {
@@ -41,7 +41,7 @@ class Harness(object):
 		"""
 		"""
 		print(datetime.datetime.now(),' - labware_harness.set_publisher:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		self._publisher = publisher
 
 
@@ -51,7 +51,7 @@ class Harness(object):
 		param: n/a
 		"""
 		print(datetime.datetime.now(),'- labware_harness.drivers:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		if name is None:
 			name = 'None'
 		if from_ == "":
@@ -67,7 +67,7 @@ class Harness(object):
 		param: driver object
 		"""
 		print(datetime.datetime.now(),' - labware_harness.add_driver:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		self.driver_dict[name] = param
 		if from_ == "":
 			self._publisher.publish('frontend',from_,session_id,'labware',name,'drivers',list(self.driver_dict))
@@ -82,7 +82,7 @@ class Harness(object):
 		param: n/a
 		"""
 		print(datetime.datetime.now(),' - labware_harness.remove_driver:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		del self.driver_dict[name]
 		if from_ == "":
 			self._publisher.publish('frontend',from_,session_id,'labware',name,'drivers',list(self.driver_dict))
@@ -97,7 +97,7 @@ class Harness(object):
 		param: n/a
 		"""
 		print(datetime.datetime.now(),' - labware_harness.callbacks:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		if from_ == "":
 			self._publisher.publish('frontend',from_,session_id,'labware',name,'callbacks',self.driver_dict[name].callbacks())
 		else:
@@ -112,7 +112,7 @@ class Harness(object):
 		param: n/a
 		"""
 		print(datetime.datetime.now(),' - labware_harness.meta_callbacks:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		self._publisher.publish(from_,from_,session_id,'driver',name,'meta_callbacks',self.driver_dict[name].meta_callbacks())
 		return self.driver_dict[name].meta_callbacks
 
@@ -123,7 +123,7 @@ class Harness(object):
 		param: { meta-callback-name : meta-callback-object }
 		"""
 		print(datetime.datetime.now(),' - labware_harness.set_meta_callback:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		if isinstance(param,dict):
 			self.driver_dict.get(name).set_meta_callback(list(param)[0],list(param.values())[0])
 		return_dict = self.driver_dict.get(name).meta_callbacks()
@@ -137,7 +137,7 @@ class Harness(object):
 		param: { callback obj: [messages list] }
 		"""
 		print(datetime.datetime.now(),' - labware_harness.add_callback:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		self.driver_dict[name].add_callback(list(param)[0],list(param.values())[0])
 		if from_ == "":
 			self._publisher.publish('frontend',from_,session_id,'labware',name,'callbacks',self.driver_dict.get(name).callbacks())
@@ -152,7 +152,7 @@ class Harness(object):
 		param: name of callback to remove
 		"""
 		print(datetime.datetime.now(),' - labware_harness.remove_callback:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		self.driver_dict[name].remove_callback(param)
 		if from_ == "":
 			self._publisher.publish('frontend',from_,session_id,'labware',name,'callbacks',self.driver_dict.get(name).callbacks())
@@ -167,7 +167,7 @@ class Harness(object):
 		param: n/a
 		"""
 		print(datetime.datetime.now(),' - labware_harness.flow:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		if from_ == "":
 			self._publisher.publish(from_,from_,session_id,'labware',name,'flow',self.driver_dict.get(name).flow())
 		else:
@@ -181,7 +181,7 @@ class Harness(object):
 		param: n/a
 		"""
 		print(datetime.datetime.now(),' - labware_harness.clear_queue:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		self.driver_dict.get(name).clear_queue()
 		self._publisher.publish(from_,from_,session_id,'labware',name,'flow',self.driver_dict.get(name).flow())
 
@@ -192,7 +192,7 @@ class Harness(object):
 		param: n/a
 		"""
 		print(datetime.datetime.now(),' - labware_harness.connect:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		print('self.driver_dict: ',self.driver_dict)
 		print('self.driver_dict[',name,']: ',self.driver_dict[name])
 		self.driver_dict[name].connect(from_,session_id)
@@ -204,7 +204,7 @@ class Harness(object):
 	#	param: n/a
 	#	"""
 	#	print(datetime.datetime.now(),' - labware_harness.disconnect:')
-	#	print('\targs:',locals())
+	#	print('\n\targs: ',locals(),'\n')
 	#	self.driver_dict.get(name).disconnect(session_id)
 
 
@@ -214,7 +214,7 @@ class Harness(object):
 		param: n/a
 		"""
 		print(datetime.datetime.now(),' - labware_harness.close:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		self.driver_dict.get(name).close(from_,session_id)
 
 
@@ -235,7 +235,7 @@ class Harness(object):
 		param: n/a
 		"""
 		print(datetime.datetime.now(),' - labware_harness.meta_commands:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		if from_ == "":
 			self._publisher.publish('frontend',from_,session_id,'labware',name,'meta_commands',copy.deepcopy(self.meta_dict))
 		else:
@@ -288,7 +288,7 @@ class Harness(object):
 
 		"""
 		print(datetime.datetime.now(),' - labware_harness.meta_command:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		if isinstance(data, dict):
 			name = data['name']
 			value = data['message']
@@ -347,7 +347,7 @@ class Harness(object):
 		}
 		"""
 		print(datetime.datetime.now(),'labware_harness.send_command:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		if isinstance(data, dict):
 			name = data['name']
 			value = data['message']

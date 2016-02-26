@@ -54,7 +54,7 @@ class WampComponent(wamp.ApplicationSession):
         Starts instatiation of robot objects by calling :meth:`otone_client.instantiate_objects`.
         """
         print(datetime.datetime.now(),' - driver_client : WampComponent.onJoin:')
-        print('\targs: ',locals())
+        print('\n\targs: ',locals(),'\n')
         if not self.factory._myAppSession:
             self.factory._myAppSession = self
     
@@ -77,7 +77,7 @@ class WampComponent(wamp.ApplicationSession):
         :param details: Close information.
         """
         print('driver_client : WampComponent.onLeave:')
-        print('\targs:',locals())
+        print('\n\targs: ',locals(),'\n')
         if self.factory._myAppSession == self:
             self.factory._myAppSession = None
         try:
@@ -142,7 +142,7 @@ if __name__ == '__main__':
             """
             """
             print(datetime.datetime.now(),' - labware_client.frontend')
-            print('\targs: ',locals())
+            print('\n\targs: ',locals(),'\n')
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
             publisher.publish('frontend',from_,session_id,'labware',name,dd_name,dd_value)
@@ -152,7 +152,7 @@ if __name__ == '__main__':
             """
             """
             print(datetime.datetime.now(),' - labware_client.driver')
-            print('\targs: ',locals())
+            print('\n\targs: ',locals(),'\n')
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
             publisher.publish('driver',from_,session_id,name,dd_name,dd_value)
@@ -162,7 +162,7 @@ if __name__ == '__main__':
             """
             """
             print(datetime.datetime.now(),' - labware_client.bootstrapper')
-            print('\targs: ',locals())
+            print('\n\targs: ',locals(),'\n')
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
             publisher.publish('bootstrapper','',session_id,name,dd_name,dd_value)
@@ -172,7 +172,7 @@ if __name__ == '__main__':
             """
             """
             print(datetime.datetime.now(),' - labware_client.labware')
-            print('\targs: ',locals())
+            print('\n\targs: ',locals(),'\n')
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
             publisher.publish('labware','',session_id,name,dd_name,dd_value)
@@ -183,7 +183,7 @@ if __name__ == '__main__':
             """
             """
             print(datetime.datetime.now(),' - labware_client.none_cb')
-            print('\targs: ',locals())
+            print('\n\targs: ',locals(),'\n')
             dd_name = list(data_dict)[0]
             dd_value = data_dict[dd_name]
             if from_ != session_id:

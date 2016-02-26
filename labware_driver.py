@@ -60,7 +60,7 @@ class LabwareDriver(object):
 		"""
 		"""
 		print(datetime.datetime.now(),' - labware_driver.__init__:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		self.simulation = simulate
 		self.the_loop = asyncio.get_event_loop()
 		self.command_queue = []
@@ -140,7 +140,7 @@ class LabwareDriver(object):
 		name should correspond 
 		"""
 		print(datetime.datetime.now(),' - labware_driver.set_meta_callback:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		if name in self.meta_callbacks_dict and isinstance(callback, Callable):
 			self.meta_callbacks_dict[name] = callback
 		else:
@@ -152,7 +152,7 @@ class LabwareDriver(object):
 		"""
 		"""
 		print(datetime.datetime.now(),' - labware_driver.add_callback:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		if callback.__name__ not in list(self.callbacks_dict):
 			if isinstance(messages, list):
 				self.callbacks_dict[callback.__name__] = {'callback':callback, 'messages':messages}
@@ -169,7 +169,7 @@ class LabwareDriver(object):
 		"""
 		"""
 		print(datetime.datetime.now(),' - labware_driver.remove_callback:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		del self.callbacks_dict[callback_name]
 
 
@@ -194,7 +194,7 @@ class LabwareDriver(object):
 		"""
 		"""
 		print(datetime.datetime.now(),' - labware_driver.connect called:')
-		print('\targs: ',locals())
+		print('\n\targs: ',locals(),'\n')
 		self.connected_info = {'from':from_,'session_id':session_id}
 		self.session = Session(session_id)
 		self._on_connection_made()
@@ -213,7 +213,7 @@ class LabwareDriver(object):
 
 	def send(self, message):
 		print(datetime.datetime.now(),' - labware_driver.send:')
-		print('\targs: ',locals())
+		print('\n\targs: ',locals(),'\n')
 		self.state_dict['queue_size'] = len(self.command_queue)
 		#message = message + self.config_dict['message_ender']
 		if self.simulation:
@@ -232,7 +232,7 @@ class LabwareDriver(object):
 
 	def _add_to_command_queue(self, from_, session_id, command):
 		print(datetime.datetime.now(),' - labware_driver._add_to_command_queue:')
-		print('\targs: ',locals())
+		print('\n\targs: ',locals(),'\n')
 		cmd = {'from':from_,'session_id':session_id,'command':command}
 		self.command_queue.append(cmd)
 		self.state_dict['queue_size'] = len(self.command_queue)
@@ -251,7 +251,7 @@ class LabwareDriver(object):
 
 	def _format_text_data(self, text_data):
 		print(datetime.datetime.now(),' - labware_driver._format_text_data:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		return_list = []
 		remainder_data = text_data
 		while remainder_data.find(',')>=0:
@@ -265,7 +265,7 @@ class LabwareDriver(object):
 
 	def _format_group(self, group_data):
 		print(datetime.datetime.now(),' - labware_driver._format_group:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		return_dict = dict()
 		remainder_data = group_data
 		if remainder_data.find(':')>=0:
@@ -294,7 +294,7 @@ class LabwareDriver(object):
 		#
 		#
 		print(datetime.datetime.now(),' - labware_driver._format_json_data:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 		return_list = []
 		for name, value in json_data.items():
 			if isinstance(value, dict):
@@ -332,7 +332,7 @@ class LabwareDriver(object):
 
 	def _process_message_dict(self, from_, session_id, message_dict):
 		print(datetime.datetime.now(),' - labware_driver._process_message_dict:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 
 		# first, pass messages to their respective callbacks based on callbacks and messages they're registered to receive
 		# eg:
@@ -372,7 +372,7 @@ class LabwareDriver(object):
 		"""Handles incoming data from Smoothieboard that has already been split by delimiter
 		"""
 		print(datetime.datetime.now(),' - labware_driver._data_handler:')
-		print('\targs: ',locals())
+		print('\n\targs: ',locals(),'\n')
 		json_data = ""
 		text_data = ""
 		if isinstance(datum,dict):
@@ -413,7 +413,7 @@ class LabwareDriver(object):
 
 	def send_command(self, from_, session_id, data):
 		print(datetime.datetime.now(),' - labware_driver.send_command:')
-		print('\targs:',locals())
+		print('\n\targs: ',locals(),'\n')
 	#	"""
 	#
 	#	data should be in one of 2 forms:

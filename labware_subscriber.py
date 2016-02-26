@@ -10,7 +10,7 @@ driver = None
 class Subscriber():
     def __init__(self, harness=None, publisher=None):
         print(datetime.datetime.now(),' - labware_subscriber.__init__:')
-        print('\targs:',locals())
+        print('\n\targs: ',locals(),'\n')
         self.harness = harness
         self.publisher = publisher
 
@@ -21,13 +21,13 @@ class Subscriber():
 
     def set_harness(self, harness):
         print(datetime.datetime.now(),' - labware_subscriber.set_harness:')
-        print('\targs:',locals())
+        print('\n\targs: ',locals(),'\n')
         self.harness = harness
 
 
     def dispatch_message(self, message):
         print(datetime.datetime.now(),' - labware_subscriber.dispatch_message:')
-        print('\targs:',locals())
+        print('\n\targs: ',locals(),'\n')
         try:
             dictum = collections.OrderedDict(json.loads(message.strip(), object_pairs_hook=collections.OrderedDict))
             if 'type' in dictum and 'from' in dictum and 'sessionID' in dictum and 'data' in dictum:
