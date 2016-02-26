@@ -176,7 +176,7 @@ class Harness(object):
 		print('\n\targs: ',locals(),'\n')
 		return_dict = self.driver_dict.get(name).flow()
 		if from_ == "":
-			self._publisher.publish(from_,from_,session_id,'labware',name,'flow',return_dict)
+			self._publisher.publish('frontend',from_,session_id,'labware',name,'flow',return_dict)
 		else:
 			self._publisher.publish(from_,from_,session_id,'labware',name,'flow',return_dict)
 		return return_dict
@@ -190,7 +190,11 @@ class Harness(object):
 		print(datetime.datetime.now(),' - labware_harness.clear_queue:')
 		print('\n\targs: ',locals(),'\n')
 		return_dict = self.driver_dict.get(name).clear_queue()
-		self._publisher.publish(from_,from_,session_id,'labware',name,'clear_queue',return_dict)
+		if from_ == "":
+			self._publisher.publish('frontend',from_,session_id,'labware',name,'clear_queue',return_dict)
+		else:
+			self._publisher.publish(from_,from_,session_id,'labware',name,'clear_queue',return_dict)
+		return return_dict
 
 
 	def connect(self, from_, session_id, name, param):
