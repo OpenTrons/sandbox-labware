@@ -110,7 +110,7 @@ if __name__ == '__main__':
                                                                 debug_wamp=False)
         loop = asyncio.get_event_loop()
 
-        print('END INIT...\n')
+        print('BEGIN INIT...\n')
 
         # TRYING THE FOLLOWING IN INSTANTIATE OBJECTS vs here
         # INITIAL SETUP PUBLISHER, HARNESS, SUBSCRIBER
