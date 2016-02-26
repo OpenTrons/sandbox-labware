@@ -22,14 +22,14 @@ class LabwareDriver(object):
 	From:
 
 	1. Data coming in is split up by delimiter ('\n') and then
-	each section is sent to a callback (labwareDriver._data_handler)
-	The raw data is then sent to another callback (SmoothieDriver._raw_data_handler)
+	each section is sent to a callback (LabwareDriver._data_handler)
+	The raw data is then sent to another callback (LabwareDriver._raw_data_handler)
 
 	Function: Output.data_received()
 	-> _data_handler - callback for raw data
 	-> _raw_data_handler - callback for chunks of data separated by delimiter
 
-	2. In labwareDriver._data_handler data is divided between text data and
+	2. In LabwareDriver._data_handler data is divided between text data and
 	JSON data, serial text data formatted for JSON. Either way, the data is then 
 	reformatted into a list of standardized dictionary objects with the following format:
 
@@ -172,6 +172,7 @@ class LabwareDriver(object):
 		print(datetime.datetime.now(),' - labware_driver.remove_callback:')
 		print('\n\targs: ',locals(),'\n')
 		del self.callbacks_dict[callback_name]
+		return self.callbacks()
 
 
 	def flow(self):
@@ -226,7 +227,7 @@ class LabwareDriver(object):
 		self.state_dict['locked'] = True
 		self.current_info = {'from':message['from'],'session_id':message['session_id']}
 		command = message['command']
-		self._data_handler(from_, session_id, self.session.execute(command))
+		self._data_handler(self.session.execute(command))
 
 
 
@@ -332,7 +333,7 @@ class LabwareDriver(object):
 		return return_list
 
 
-	def _process_message_dict(self, from_, session_id, message_dict):
+	def _process_message_dict(self, message_dict):
 		print(datetime.datetime.now(),' - labware_driver._process_message_dict:')
 		print('\n\targs: ',locals(),'\n')
 
@@ -351,7 +352,7 @@ class LabwareDriver(object):
 		for name_message, value in message_dict.items():
 			for callback_name, callback in self.callbacks_dict.items():
 				if name_message in callback['messages']:
-					callback['callback'](self.state_dict['name'], from_, session_id, value)
+					callback['callback'](self.state_dict['name'], self.current_info['from'], self.current_info['session_id'], value)
 		
 		# second, check if ack_received confirmation - NOT FOR LABWARE
 		
@@ -370,7 +371,7 @@ class LabwareDriver(object):
 			self.meta_callbacks_dict['on_connect'](self.connected_info['form'],self.connected_info['session_id'])
 
 
-	def _data_handler(self, from_, session_id, datum):
+	def _data_handler(self, datum):
 		"""Handles incoming data from Smoothieboard that has already been split by delimiter
 		"""
 		print(datetime.datetime.now(),' - labware_driver._data_handler:')
@@ -391,7 +392,7 @@ class LabwareDriver(object):
 			text_message_list = self._format_text_data(text_data)
 
 			for message in text_message_list:
-				self._process_message_dict(from_,session_id,message)
+				self._process_message_dict(message)
 
 		if json_data != "":
 			print('\tjson_data: ',json_data)
@@ -399,7 +400,7 @@ class LabwareDriver(object):
 				json_data_dict = json.loads(json_data)
 				json_message_list = self._format_json_data(json_data_dict)
 				for message in json_message_list:
-					self._process_message_dict(from_,session_id,message)
+					self._process_message_dict(message)
 			except:
 				print(datetime.datetime.now(),' - {error:driver._data_handler - json.loads(json_data)}\n\r',sys.exc_info())
 
