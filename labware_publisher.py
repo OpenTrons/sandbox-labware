@@ -69,7 +69,7 @@ class Publisher:
                 self.gen_client_id()
     
             if 'get_ids' in data_dict:
-                publish_client_ids()
+                publish_client_ids('','')
         else:
             self.gen_client_id()
 
@@ -93,11 +93,11 @@ class Publisher:
             return False
 
 
-    def publish_client_ids(self, id_):
+    def publish_client_ids(self, id_, session_id):
         if id_ in self.clients:
-            self.publish( id_ , id_ , 'handshake' , 'labware' , 'ids' , list(self.clients) )
+            self.publish( id_ , id_ , session_id, 'handshake' , 'labware' , 'ids' , list(self.clients) )
         else:
-            self.publish( 'frontend' , '' , 'handshake' , 'labware' , 'ids' , list(self.clients) )
+            self.publish( 'frontend' , '' , session_id, 'handshake' , 'labware' , 'ids' , list(self.clients) )
         return list(self.clients)
 
 
