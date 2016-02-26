@@ -53,7 +53,7 @@ class Publisher:
                                 print('handshake called again on client ',client_id,'. We could have done something here to repopulate data')
                                 self.publish( client_id , client_id , client_id ,'handshake','labware','result','already_connected')
                             if 'shake' in data_dict['data']['message']:
-                                self.publish_client_ids(client_id)
+                                self.publish_client_ids(client_id,client_id)
                 else:
                     print('* from is NOT a client')
                     if len(self.clients) > self.max_clients:
