@@ -254,7 +254,7 @@ class Harness(object):
 			self._publisher.publish('frontend',from_,session_id,'labware',name,'meta_commands',return_list)
 		else:
 			self._publisher.publish(from_,from_,session_id,'labware',name,'meta_commands',return_list)
-		return return_dict
+		return return_list
 
 	#def configs(self, from_, name, param):
 	#	"""
