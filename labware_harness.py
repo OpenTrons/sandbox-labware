@@ -22,7 +22,7 @@ class Harness(object):
 		self.meta_dict = {
 			'drivers' : lambda from_,session_id,name,param: self.drivers(from_,session_id,name,param),
 			'add_driver' : lambda from_,session_id,name,param: self.add_driver(from_,session_id,name,param),
-			'remove_driver' : lambda form_,session_id,name,param: self.remove_driver(from_,session_id,name,param),
+			'remove_driver' : lambda from_,session_id,name,param: self.remove_driver(from_,session_id,name,param),
 			'meta_callbacks' : lambda from_,session_id,name,param: self.meta_callbacks(from_,session_id,name,param),
 			'set_meta_callback' : lambda from_,session_id,name,param: self.set_meta_callback(from_,session_id,name,param),
 			'add_callback' : lambda from_,session_id,name,param: self.add_callback(from_,session_id,name,param),
@@ -32,7 +32,7 @@ class Harness(object):
 			'connect' : lambda from_,session_id,name,param: self.connect(from_,session_id,name,param),
 		#	'disconnect' : lambda from_,session_id,name,param: self.disconnect(from_,session_id,name,param),
 			'close' : lambda from_,session_id,name,param: self.close(from_,session_id,name,param),
-		#	'commands' : lambda from_,name,param: self.commands(form_,name,param),
+		#	'commands' : lambda from_,name,param: self.commands(from_,name,param),
 		#	'configs' : lambda from_,name,param: self.configs(from_,name,param),
 		#	'set_config' : lambda from_,name,param: self.set_config(from_,name,param)
 		}
