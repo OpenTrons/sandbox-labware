@@ -312,19 +312,19 @@ class Harness(object):
 						self.meta_dict[command](from_,session_id,name,params)
 					except:
 						if from_ == "":
-							self._publisher.publish('frontend',from_,session_id,'labware',name,'error',sys.exc_info())
+							self._publisher.publish('frontend',from_,session_id,'labware',name,'error',str(sys.exc_info()))
 						else:
-							self._publisher.publish(from_,from_,session_id,'labware',name,'error',sys.exc_info())
-						print(datetime.datetime.now(),' - meta_command error: ',sys.exc_info())
+							self._publisher.publish(from_,from_,session_id,'labware',name,'error',str(sys.exc_info()))
+						print(datetime.datetime.now(),' - meta_command error: ',str(sys.exc_info()))
 				elif isinstance(value, str):
 					command = value
 					try:
 						self.meta_dict[command](from_,session_id,name,None)
 					except:
 						if from_ == "":
-							self._publisher.publish('frontend',from_,session_id,'labware',name,'error',sys.exc_info())
+							self._publisher.publish('frontend',from_,session_id,'labware',name,'error',str(sys.exc_info()))
 						else:
-							self._publisher.publish(from_,from_,session_id,'labware',name,'error',sys.exc_info())
+							self._publisher.publish(from_,from_,session_id,'labware',name,'error',str(sys.exc_info()))
 						print(datetime.datetime.now(),' - meta_command error: ',sys.exc_info())
 			else:
 				if isinstance(value, dict):
