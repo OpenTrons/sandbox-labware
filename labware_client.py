@@ -241,6 +241,9 @@ if __name__ == '__main__':
                     make_connection()
                 except KeyboardInterrupt:
                     crossbar_connected = True
+                except:
+                    print('crossbar connection attempt error:\n',sys.exc_info())
+                    pass
                 finally:
                     print('\nCrossbar connection failed, sleeping for 5 seconds\n')
                     time.sleep(5)
