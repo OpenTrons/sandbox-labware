@@ -18,7 +18,7 @@ from autobahn.asyncio.wamp import ApplicationSession, ApplicationRunner
 
 loop = asyncio.get_event_loop()
 
-
+crossbar_connected = False
 
 
 def make_connection():
@@ -58,6 +58,8 @@ class WampComponent(wamp.ApplicationSession):
         if not self.factory._myAppSession:
             self.factory._myAppSession = self
     
+        crossbar_connected = True
+
         def handshake(client_data):
             """
             """
@@ -91,6 +93,7 @@ class WampComponent(wamp.ApplicationSession):
         """
         print(datetime.datetime.now(),' - labware_client : WampComponent.onDisconnect:')
         asyncio.get_event_loop().stop()
+        crossbar_connected = False
 
     
     
