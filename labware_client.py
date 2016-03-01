@@ -110,7 +110,7 @@ if __name__ == '__main__':
                                                                 debug_wamp=False)
         loop = asyncio.get_event_loop()
 
-        print('BEGIN INIT...\n')
+        print('\nBEGIN INIT...\n')
 
         # TRYING THE FOLLOWING IN INSTANTIATE OBJECTS vs here
         # INITIAL SETUP PUBLISHER, HARNESS, SUBSCRIBER
@@ -229,9 +229,18 @@ if __name__ == '__main__':
         #print('*\t*\t* connect to drivers\t*\t*\t*')
         #driver_harness.connect(publisher.id,'smoothie',None)
 
-        print('\n END INIT...\n')
+        print('\nEND INIT...\n')
 
-        make_connection()
+        while (True):
+            while (crossbar_connected == False):
+                try:
+                    print('\nLabware attempting crossbar connection\n')
+                    make_connection()
+                except KeyboardInterrupt:
+                    crossbar_connected = True
+                finally:
+                    print('\nCrossbar connection failed, sleeping for 5 seconds\n')
+                    time.sleep(5)
 
     except KeyboardInterrupt:
         pass
