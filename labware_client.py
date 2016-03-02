@@ -148,6 +148,7 @@ class LabwareClient():
 
         self.session_factory = wamp.ApplicationSessionFactory()
         self.session_factory.session = WampComponent
+        self.session_factory._myAppSession = None
 
         self.crossbar_connected = False
 
