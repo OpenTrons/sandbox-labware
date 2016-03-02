@@ -639,12 +639,12 @@ class LabwareClient():
                                                                             debug_wamp=debug_wamp)
 
             try:
-                self._make_connection(url_domain,url_port,url_path,debug,debug_wamp)
+                self._make_connection()
                 while (keep_trying):
                     while (self.crossbar_connected == False):
                         try:
                             print('\nLabware attempting crossbar connection\n')
-                            self._make_connection(url_domain,url_port,url_path,debug,debug_wamp)
+                            self._make_connection()
                         except KeyboardInterrupt:
                             crossbar_connected = True
                         except:
