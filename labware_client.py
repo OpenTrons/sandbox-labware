@@ -620,7 +620,7 @@ class LabwareClient():
         print('\n\targs: ',locals(),'\n')
         if self.loop.is_running():
             self.loop.stop()
-        coro = self.loop.create_connection(transport_factory, url_domain, url_port)
+        coro = self.loop.create_connection(self.transport_factory, url_domain, url_port)
         self.transport, self.protocoler = self.loop.run_until_complete(coro)
         #protocoler.set_outer(self)
         if not self.loop.is_running():
