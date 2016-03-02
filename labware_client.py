@@ -628,7 +628,6 @@ class LabwareClient():
                                                                             url=url,
                                                                             debug=debug,
                                                                             debug_wamp=debug_wamp)
-            self.transport_factory.session.
         if not keep_trying:
             try:
                 print('\nLabware attempting crossbar connection\n')
