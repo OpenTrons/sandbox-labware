@@ -36,7 +36,7 @@ class WampComponent(wamp.ApplicationSession):
 
         Starts instatiation of robot objects by calling :meth:`otone_client.instantiate_objects`.
         """
-        print(datetime.datetime.now(),' - driver_client : WampComponent.onJoin:')
+        print(datetime.datetime.now(),' - labware_client : WampComponent.onJoin:')
         print('\n\targs: ',locals(),'\n')
         if not self.factory._myAppSession:
             self.factory._myAppSession = self
@@ -47,20 +47,30 @@ class WampComponent(wamp.ApplicationSession):
         
 
         def handshake(client_data):
+            """ FACTORY STUB
             """
-            """
-        #    #if debug == True:
             print(datetime.datetime.now(),' - labware_client : WampComponent.handshake:')
-        #    #if outer is not None:
-        #    #outer.
+            print('\n\targs: ',locals(),'\n')
             try:
-                self.outer.handshake(client_data)
+                self.factory._handshake(client_data)
             except AttributeError:
-                print('ERROR: outer does not have "handshake" attribute')
+                print('ERROR: outer does not have "_handshake" attribute')
+
+
+        def dispatch_message(client_data):
+            """ FACTORY STUB
+            """
+            print(datetime.datetime.now(),' - labware_client : WampComponent.handshake:')
+            print('\n\targs: ',locals(),'\n')
+            try:
+                self.factory._dispatch_message(client_data)
+            except AttributeError:
+                print('ERROR: outer does not have "_handshake" attribute')
+
 
 
         yield from self.subscribe(handshake, 'com.opentrons.labware_handshake')
-        yield from self.subscribe(subscriber.dispatch_message, 'com.opentrons.labware')
+        yield from self.subscribe(dispatch_message, 'com.opentrons.labware')
 
 
     def onLeave(self, details):
@@ -628,6 +638,10 @@ class LabwareClient():
                                                                             url=url,
                                                                             debug=debug,
                                                                             debug_wamp=debug_wamp)
+
+        self.session_factory._handshake = self.handshake
+        self.session_factory._dispatch_message = self.dispatch_message
+
         if not keep_trying:
             try:
                 print('\nLabware attempting crossbar connection\n')
