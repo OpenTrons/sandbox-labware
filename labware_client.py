@@ -16,7 +16,6 @@ from labware_driver import LabwareDriver
 from autobahn.asyncio import wamp, websocket
 from autobahn.asyncio.wamp import ApplicationSession, ApplicationRunner 
 
-crossbar_connected = False
 
 def make_connection():
     if loop.is_running():
@@ -32,8 +31,10 @@ class WampComponent(wamp.ApplicationSession):
     """WAMP application session for OTOne (Overrides protocol.ApplicationSession - WAMP endpoint session)
     """
 
-    def set_outer(self, outer_):
-        outer = outer_
+    def __init__(self,outer=None,config=None):
+        wamp.ApplicationSession.__init__(config)
+        self.outer = outer
+
 
     def onConnect(self):
         """Callback fired when the transport this session will run over has been established.
@@ -53,7 +54,10 @@ class WampComponent(wamp.ApplicationSession):
         print('\n\targs: ',locals(),'\n')
         if not self.factory._myAppSession:
             self.factory._myAppSession = self
-    
+        try:
+            self.outer.crossbar_connected = True
+        except AttributeError:
+            print('ERROR: outer does not have "crossbar_connected" attribute')
         
 
         def handshake(client_data):
@@ -88,7 +92,10 @@ class WampComponent(wamp.ApplicationSession):
         """
         print(datetime.datetime.now(),' - labware_client : WampComponent.onDisconnect:')
         asyncio.get_event_loop().stop()
-        crossbar_connected = False
+        try:
+            self.outer.crossbar_connected = False
+        except AttributeError:
+            print('ERROR: outer does not have "crossbar_connected" attribute')
 
 
 class LabwareClient():
@@ -138,6 +145,8 @@ class LabwareClient():
         self.session_factory = wamp.ApplicationSessionFactory()
         self.session_factory.session = WampComponent
 
+        self.crossbar_connected = False
+
         self.loop = asyncio.get_event_loop()
 
 
@@ -149,11 +158,9 @@ class LabwareClient():
             dictum = collections.OrderedDict(json.loads(message.strip(), object_pairs_hook=collections.OrderedDict))
             if 'type' in dictum and 'from' in dictum and 'sessionID' in dictum and 'data' in dictum:
                 if dictum['type'] in self.in_dispatcher:
-                    #if self.publisher.client_check(dictum['from']):
-                        #opportunity to filter, not actually used
+                    # if self.client_check(dictum['from']):
+                    # opportunity to filter, not actually used
                     self.in_dispatcher[dictum['type']](dictum['from'],dictum['sessionID'],dictum['data'])
-                    #else:
-                    #    self.in_dispatcher[doctum['type']](dictum['from'],dictum['data'])
                 else:
                     print(datetime.datetime.now(),' - {error:malformed message, type not in in_dispatcher}\n\r',sys.exc_info())
                     print('type: ',dictum['type'])
@@ -233,14 +240,6 @@ class LabwareClient():
         return list(self.clients)
 
 
-    def set_caller(self, session):
-        """
-        """
-        print(datetime.datetime.now(),' - LabwareClient.set_caller:')
-        print('\n\targs: ',locals(),'\n')
-        self.caller = session
-
-
     def publish(self,topic,to,session_id,type_,name,message,param):
         """
         """
@@ -253,25 +252,19 @@ class LabwareClient():
                 message = ''
             if param is None:
                 param = ''
-            if self.caller is not None:
-                if self.caller._myAppSession is not None:
+            if self.session_factory is not None:
+                if self.session_factory._myAppSession is not None:
                     msg = {'type':type_,'to':to,'sessionID':session_id,'from':self.id,'data':{'name':name,'message':{message:param}}}
                     try:
                         if topic in self.topic:
                             print('TOPIC: ',self.topic)
                             print(datetime.datetime.now(),'url topic: ',self.topic.get(topic))
-                            self.caller._myAppSession.publish(self.topic.get(topic),json.dumps(msg))
+                            self.session_factory._myAppSession.publish(self.topic.get(topic),json.dumps(msg))
                         else:
                             print('TO:',to)
                             url_topic = 'com.opentrons.'+to
                             print(datetime.datetime.now(),'url topic: ',url_topic)
-                            self.caller._myAppSession.publish(url_topic,json.dumps(msg))
-                        #elif topic in self.clients:
-                        #    print('CLIENTS: ',self.clients)
-                        #    print(datetime.datetime.now(),'url topic: ',self.clients.get(topic))
-                        #    self.caller._myAppSession.publish(self.clients.get(topic),json.dumps(msg))
-
-
+                            self.session_factory._myAppSession.publish(url_topic,json.dumps(msg))
                     except:
                         print(datetime.datetime.now(),' - publisher.py - publish - error:\n\r',sys.exc_info())
             else:
@@ -616,7 +609,9 @@ class LabwareClient():
                 print(datetime.datetime.now(),' - send_command_error, name not in drivers: '+sys.exc_info())
 
 
-    def _make_connection(self, url_domain='0.0.0.0', url_port=8080):
+    def _make_connection(self, url_protocol='ws', url_domain='0.0.0.0', url_port=8080, url_path='ws', debug=False, debug_wamp=False):
+        print(datetime.datetime.now(),' - LabwareClient._make_connection:')
+        print('\n\targs: ',locals(),'\n')
         if self.loop.is_running():
             self.loop.stop()
         coro = self.loop.create_connection(transport_factory, url_domain, url_port)
@@ -626,19 +621,24 @@ class LabwareClient():
             self.loop.run_forever()
 
 
-    def connect(self, url_protocol='ws', url_domain='0.0.0.0', url_port=8080, url_path='ws', keep_trying=True, period=5, debug=False, debug_wamp=False):
+    def connect(self, url_protocol='ws', url_domain='0.0.0.0', url_port=8080, url_path='ws', debug=False, debug_wamp=False, keep_trying=True, period=5):
+        print(datetime.datetime.now(),' - LabwareClient.connect:')
+        print('\n\targs: ',locals(),'\n')
         if self.transport_factory is None:
-            self.transport_factory = websocket.WampWebSocketClientFactory(self.session)
-
             url = url_protocol+"://"+url_domain+':'+str(url_port)+'/'+url_path
 
+            self.transport_factory = websocket.WampWebSocketClientFactory(self.session_factory,
+                                                                            url=url,
+                                                                            debug=debug,
+                                                                            debug_wamp=debug_wamp)
+
             try:
-                self._make_connection()
+                self._make_connection(url_domain,url_port,url_path,debug,debug_wamp)
                 while (keep_trying):
                     while (self.crossbar_connected == False):
                         try:
                             print('\nLabware attempting crossbar connection\n')
-                            self._make_connection()
+                            self._make_connection(url_domain,url_port,url_path,debug,debug_wamp)
                         except KeyboardInterrupt:
                             crossbar_connected = True
                         except:
@@ -646,13 +646,15 @@ class LabwareClient():
                             pass
                         finally:
                             print('\nCrossbar connection failed, sleeping for 5 seconds\n')
-                            time.sleep(5)
+                            time.sleep(period)
             except:
                 print('crossbar connection attempt error:\n',sys.exc_info())
                 raise
 
 
     def disconnect(self):
+        print(datetime.datetime.now(),' - LabwareClient.disconnect:')
+        print('\n\targs: ',locals(),'\n')
         self.transport.close()
         self.transport_factory = None
 
