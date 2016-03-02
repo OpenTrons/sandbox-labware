@@ -673,9 +673,9 @@ if __name__ == '__main__':
 
         #url = "ws://0.0.0.0:8080/ws"
         #transport_factory = websocket.WampWebSocketClientFactory(session_factory,
-                                                                url=url,
-                                                                debug=False,
-                                                                debug_wamp=False)
+        #                                                        url=url,
+        #                                                        debug=False,
+        #                                                        debug_wamp=False)
         #loop = asyncio.get_event_loop()
 
         print('\nBEGIN INIT...\n')
