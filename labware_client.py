@@ -17,15 +17,6 @@ from autobahn.asyncio import wamp, websocket
 from autobahn.asyncio.wamp import ApplicationSession, ApplicationRunner 
 
 
-def make_connection():
-    if loop.is_running():
-        loop.stop()
-    coro = loop.create_connection(transport_factory, '0.0.0.0', 8080)
-    transport, protocoler = loop.run_until_complete(coro)
-    #protocoler.set_outer(self)
-    if not loop.is_running():
-        loop.run_forever()
-
 
 class WampComponent(wamp.ApplicationSession):
     """WAMP application session for OTOne (Overrides protocol.ApplicationSession - WAMP endpoint session)
@@ -150,6 +141,9 @@ class LabwareClient():
         self.session_factory.session = WampComponent
         self.session_factory._myAppSession = None
         self.transport_factory = None
+
+        self.transport = None
+        self.protocol = None
 
         self.crossbar_connected = False
 
@@ -619,11 +613,13 @@ class LabwareClient():
         print(datetime.datetime.now(),' - LabwareClient._make_connection:')
         print('\n\targs: ',locals(),'\n')
         if self.loop.is_running():
+            print('self.loop is running. stopping loop now')
             self.loop.stop()
         coro = self.loop.create_connection(self.transport_factory, url_domain, url_port)
-        self.transport, self.protocoler = self.loop.run_until_complete(coro)
+        self.transport, self.protocol = self.loop.run_until_complete(coro)
         #protocoler.set_outer(self)
         if not self.loop.is_running():
+            print('about to call self.loop.run_forever()')
             self.loop.run_forever()
 
 
@@ -638,8 +634,14 @@ class LabwareClient():
                                                                             debug=debug,
                                                                             debug_wamp=debug_wamp)
 
-            try:
-                self._make_connection()
+            if not keep_trying:
+                try:
+                    print('\nLabware attempting crossbar connection\n')
+                    self._make_connection()
+                except:
+                    print('crossbar connection attempt error:\n',sys.exc_info())
+                    pass
+            else:
                 while (keep_trying):
                     while (self.crossbar_connected == False):
                         try:
@@ -653,10 +655,7 @@ class LabwareClient():
                         finally:
                             print('\nCrossbar connection failed, sleeping for 5 seconds\n')
                             time.sleep(period)
-            except:
-                print('crossbar connection attempt error:\n',sys.exc_info())
-                raise
-
+            
 
     def disconnect(self):
         print(datetime.datetime.now(),' - LabwareClient.disconnect:')
