@@ -698,8 +698,8 @@ if __name__ == '__main__':
 
         # ADD DRIVERS TO HARNESS
         print(datetime.datetime.now(),' - ADD DRIVERS TO HARNESS ','* * '*10)   
-        labware_client.add_driver(self.id,'','labware',labbie_driver)
-        print(labware_client.drivers(self.id,'',None,None))
+        labware_client.add_driver(labware_client.id,'','labware',labbie_driver)
+        print(labware_client.drivers(labware_client.id,'',None,None))
 
         # DEFINE CALLBACKS:
         #
