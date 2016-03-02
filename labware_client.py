@@ -22,11 +22,6 @@ class WampComponent(wamp.ApplicationSession):
     """WAMP application session for OTOne (Overrides protocol.ApplicationSession - WAMP endpoint session)
     """
 
-    def __init__(self,outer=None,config=None):
-        wamp.ApplicationSession.__init__(config)
-        self.outer = outer
-
-
     def onConnect(self):
         """Callback fired when the transport this session will run over has been established.
         """
@@ -46,7 +41,7 @@ class WampComponent(wamp.ApplicationSession):
         if not self.factory._myAppSession:
             self.factory._myAppSession = self
         try:
-            self.outer.crossbar_connected = True
+            self.factory._crossbar_connected = True
         except AttributeError:
             print('ERROR: outer does not have "crossbar_connected" attribute')
         
@@ -88,7 +83,7 @@ class WampComponent(wamp.ApplicationSession):
         print(datetime.datetime.now(),' - labware_client : WampComponent.onDisconnect:')
         asyncio.get_event_loop().stop()
         try:
-            self.outer.crossbar_connected = False
+            self.factory._crossbar_connected = False
         except AttributeError:
             print('ERROR: outer does not have "crossbar_connected" attribute')
 
@@ -140,12 +135,11 @@ class LabwareClient():
         self.session_factory = wamp.ApplicationSessionFactory()
         self.session_factory.session = WampComponent
         self.session_factory._myAppSession = None
+        self.session_factory._crossbar_connected = False
         self.transport_factory = None
 
         self.transport = None
         self.protocol = None
-
-        self.crossbar_connected = False
 
         self.loop = asyncio.get_event_loop()
 
@@ -634,7 +628,7 @@ class LabwareClient():
                                                                             url=url,
                                                                             debug=debug,
                                                                             debug_wamp=debug_wamp)
-
+            self.transport_factory.session.
         if not keep_trying:
             try:
                 print('\nLabware attempting crossbar connection\n')
@@ -644,12 +638,12 @@ class LabwareClient():
                 pass
         else:
             while True:
-                while (self.crossbar_connected == False):
+                while (self.session_factory._crossbar_connected == False):
                     try:
                         print('\nLabware attempting crossbar connection\n')
                         self._make_connection()
                     except KeyboardInterrupt:
-                        self.crossbar_connected = True
+                        self.session_factory._crossbar_connected = True
                     except:
                         print('crossbar connection attempt error:\n',sys.exc_info())
                         pass
@@ -674,16 +668,16 @@ class LabwareClient():
 if __name__ == '__main__':
 
     try:
-        session_factory = wamp.ApplicationSessionFactory()
-        session_factory.session = WampComponent
-        session_factory._myAppSession = None
+        #session_factory = wamp.ApplicationSessionFactory()
+        #session_factory.session = WampComponent
+        #session_factory._myAppSession = None
 
-        url = "ws://0.0.0.0:8080/ws"
-        transport_factory = websocket.WampWebSocketClientFactory(session_factory,
+        #url = "ws://0.0.0.0:8080/ws"
+        #transport_factory = websocket.WampWebSocketClientFactory(session_factory,
                                                                 url=url,
                                                                 debug=False,
                                                                 debug_wamp=False)
-        loop = asyncio.get_event_loop()
+        #loop = asyncio.get_event_loop()
 
         print('\nBEGIN INIT...\n')
 
