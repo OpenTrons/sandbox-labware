@@ -796,20 +796,8 @@ if __name__ == '__main__':
         #driver_harness.connect(publisher.id,'smoothie',None)
 
         print('\nEND INIT...\n')
-
-        while (True):
-            while (crossbar_connected == False):
-                try:
-                    print('\nLabware attempting crossbar connection\n')
-                    make_connection()
-                except KeyboardInterrupt:
-                    crossbar_connected = True
-                except:
-                    print('crossbar connection attempt error:\n',sys.exc_info())
-                    pass
-                finally:
-                    print('\nCrossbar connection failed, sleeping for 5 seconds\n')
-                    time.sleep(5)
+        
+        labware_client.connect()
 
     except KeyboardInterrupt:
         pass
