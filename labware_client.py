@@ -67,7 +67,11 @@ class WampComponent(wamp.ApplicationSession):
             print(datetime.datetime.now(),' - labware_client : WampComponent.handshake:')
         #    #if outer is not None:
         #    #outer.
-            publisher.handshake(client_data)
+            try:
+                self.outer.handshake(client_data)
+            except AttributeError:
+                print('ERROR: outer does not have "handshake" attribute')
+
 
         yield from self.subscribe(handshake, 'com.opentrons.labware_handshake')
         yield from self.subscribe(subscriber.dispatch_message, 'com.opentrons.labware')
@@ -694,8 +698,8 @@ if __name__ == '__main__':
 
         # ADD DRIVERS TO HARNESS
         print(datetime.datetime.now(),' - ADD DRIVERS TO HARNESS ','* * '*10)   
-        labware_client.add_driver(publisher.id,'','labware',labbie_driver)
-        print(labware_client.drivers(publisher.id,'',None,None))
+        labware_client.add_driver(self.id,'','labware',labbie_driver)
+        print(labware_client.drivers(self.id,'',None,None))
 
         # DEFINE CALLBACKS:
         #
@@ -796,7 +800,7 @@ if __name__ == '__main__':
         #driver_harness.connect(publisher.id,'smoothie',None)
 
         print('\nEND INIT...\n')
-        
+
         labware_client.connect()
 
     except KeyboardInterrupt:
