@@ -249,7 +249,7 @@ class LabwareClient():
         """
         print(datetime.datetime.now(),' - LabwareClient.publish:')
         print('\n\targs: ',locals(),'\n')
-        if self.caller is not None and topic is not None and type_ is not None:
+        if self.session_factory is not None and topic is not None and type_ is not None:
             if name is None:
                 name = 'None'
             if message is None:
