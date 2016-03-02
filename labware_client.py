@@ -615,6 +615,7 @@ class LabwareClient():
         if self.loop.is_running():
             print('self.loop is running. stopping loop now')
             self.loop.stop()
+        print(self.transport_factory)
         coro = self.loop.create_connection(self.transport_factory, url_domain, url_port)
         self.transport, self.protocol = self.loop.run_until_complete(coro)
         #protocoler.set_outer(self)
@@ -634,27 +635,27 @@ class LabwareClient():
                                                                             debug=debug,
                                                                             debug_wamp=debug_wamp)
 
-            if not keep_trying:
-                try:
-                    print('\nLabware attempting crossbar connection\n')
-                    self._make_connection()
-                except:
-                    print('crossbar connection attempt error:\n',sys.exc_info())
-                    pass
-            else:
-                while (keep_trying):
-                    while (self.crossbar_connected == False):
-                        try:
-                            print('\nLabware attempting crossbar connection\n')
-                            self._make_connection()
-                        except KeyboardInterrupt:
-                            crossbar_connected = True
-                        except:
-                            print('crossbar connection attempt error:\n',sys.exc_info())
-                            pass
-                        finally:
-                            print('\nCrossbar connection failed, sleeping for 5 seconds\n')
-                            time.sleep(period)
+        if not keep_trying:
+            try:
+                print('\nLabware attempting crossbar connection\n')
+                self._make_connection()
+            except:
+                print('crossbar connection attempt error:\n',sys.exc_info())
+                pass
+        else:
+            while True:
+                while (self.crossbar_connected == False):
+                    try:
+                        print('\nLabware attempting crossbar connection\n')
+                        self._make_connection()
+                    except KeyboardInterrupt:
+                        self.crossbar_connected = True
+                    except:
+                        print('crossbar connection attempt error:\n',sys.exc_info())
+                        pass
+                    finally:
+                        print('\nCrossbar connection failed, sleeping for 5 seconds\n')
+                        time.sleep(period)
             
 
     def disconnect(self):
