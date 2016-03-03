@@ -8,9 +8,6 @@ import uuid
 import datetime
 import sys
 
-from labware_subscriber import Subscriber
-from labware_publisher import Publisher
-from labware_harness import Harness
 from labware_driver import LabwareDriver
 
 from autobahn.asyncio import wamp, websocket
@@ -818,7 +815,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     finally:
-        loop.close()
+        print('ALL DONE!')
 
 
 
