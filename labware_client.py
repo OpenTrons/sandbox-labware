@@ -25,7 +25,7 @@ class WampComponent(wamp.ApplicationSession):
         self.join(u"ot_realm")
 
 
-        @asyncio.coroutine
+    @asyncio.coroutine
     def onJoin(self, details):
         """Callback fired when WAMP session has been established.
 
