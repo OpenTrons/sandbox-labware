@@ -41,7 +41,7 @@ class WampComponent(wamp.ApplicationSession):
             self.factory._crossbar_connected = True
         except AttributeError:
             print('ERROR: factory does not have "crossbar_connected" attribute')
-        
+
 
         def handshake(client_data):
             """ FACTORY STUB
