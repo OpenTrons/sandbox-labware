@@ -25,7 +25,7 @@ class WampComponent(wamp.ApplicationSession):
         self.join(u"ot_realm")
 
 
-    @asyncio.coroutine
+        @asyncio.coroutine
     def onJoin(self, details):
         """Callback fired when WAMP session has been established.
 
@@ -34,7 +34,7 @@ class WampComponent(wamp.ApplicationSession):
         Starts instatiation of robot objects by calling :meth:`otone_client.instantiate_objects`.
         """
         print(datetime.datetime.now(),' - labware_client : WampComponent.onJoin:')
-        print('\n\targs: ',locals(),'\n')
+        print('\tdetails: ',str(details))
         if not self.factory._myAppSession:
             self.factory._myAppSession = self
         try:
