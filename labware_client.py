@@ -43,7 +43,7 @@ class WampComponent(wamp.ApplicationSession):
         try:
             self.factory._crossbar_connected = True
         except AttributeError:
-            print('ERROR: outer does not have "crossbar_connected" attribute')
+            print('ERROR: factory does not have "crossbar_connected" attribute')
         
 
         def handshake(client_data):
@@ -54,19 +54,18 @@ class WampComponent(wamp.ApplicationSession):
             try:
                 self.factory._handshake(client_data)
             except AttributeError:
-                print('ERROR: outer does not have "_handshake" attribute')
+                print('ERROR: factory does not have "_handshake" attribute')
 
 
         def dispatch_message(client_data):
             """ FACTORY STUB
             """
-            print(datetime.datetime.now(),' - labware_client : WampComponent.handshake:')
+            print(datetime.datetime.now(),' - labware_client : WampComponent.dispatch_message:')
             print('\n\targs: ',locals(),'\n')
             try:
                 self.factory._dispatch_message(client_data)
             except AttributeError:
-                print('ERROR: outer does not have "_handshake" attribute')
-
+                print('ERROR: factory does not have "_dispatch_message" attribute')
 
 
         yield from self.subscribe(handshake, 'com.opentrons.labware_handshake')
@@ -218,6 +217,8 @@ class LabwareClient():
 
 
     def gen_client_id(self):
+        print(datetime.datetime.now(),' - LabwareClient.gen_client_id:')
+        print('\n\targs: ',locals(),'\n')
         ret_id = ''
         if len(self.clients) > self.max_clients:
             self.publish( 'frontend', '' , '' , 'handshake' , 'labware' , 'result' , 'fail' )
@@ -230,6 +231,8 @@ class LabwareClient():
 
 
     def client_check(self, id_):
+        print(datetime.datetime.now(),' - LabwareClient.client_check:')
+        print('\n\targs: ',locals(),'\n')
         if id_ in self.clients:
             return True
         else:
@@ -237,6 +240,8 @@ class LabwareClient():
 
 
     def publish_client_ids(self, id_, session_id):
+        print(datetime.datetime.now(),' - LabwareClient.publish_client_ids:')
+        print('\n\targs: ',locals(),'\n')
         if id_ in self.clients:
             self.publish( id_ , id_ , session_id, 'handshake' , 'labware' , 'ids' , list(self.clients) )
         else:
@@ -695,22 +700,22 @@ if __name__ == '__main__':
         print('\nBEGIN INIT...\n')
 
         # TRYING THE FOLLOWING IN INSTANTIATE OBJECTS vs here
-        # INITIAL SETUP PUBLISHER, HARNESS, SUBSCRIBER
+        # INITIAL SETUP
         print(datetime.datetime.now(),' - INITIAL SETUP - publisher, harness, subscriber ','* * '*10)
         labware_client = LabwareClient()
 
 
-        # INSTANTIATE DRIVERS:
+        # INSTANTIATE DRIVERS
         print(datetime.datetime.now(),' - INSTANTIATE DRIVERS - labbie_driver ','* * '*10)
         labbie_driver = LabwareDriver()
 
 
-        # ADD DRIVERS TO HARNESS
-        print(datetime.datetime.now(),' - ADD DRIVERS TO HARNESS ','* * '*10)   
+        # ADD DRIVERS
+        print(datetime.datetime.now(),' - ADD DRIVERS ','* * '*10)   
         labware_client.add_driver(labware_client.id,'','labware',labbie_driver)
         print(labware_client.drivers(labware_client.id,'',None,None))
 
-        # DEFINE CALLBACKS:
+        # DEFINE CALLBACKS
         #
         #   data_dict format:
         #
@@ -718,7 +723,7 @@ if __name__ == '__main__':
         #
         #
         #
-        print(datetime.datetime.now(),' - DEFINE CALLBACKS AND ADD VIA HARNESS ','* * '*10)
+        print(datetime.datetime.now(),' - DEFINE CALLBACKS ','* * '*10)
         def frontend(name, from_, session_id, data_dict):
             """
             """
@@ -774,7 +779,7 @@ if __name__ == '__main__':
                 # next line just for testing
                 labware_client.publish('frontend',from_,session_id,'labware',name,dd_name,dd_value)
                 
-        # ADD TO HARNESS BELOW
+        # ADD CALLBACKS
         labware_client.add_callback('frontend','','labware', {frontend:['frontend']})
         labware_client.add_callback('driver','','labware', {driver:['driver']})
         labware_client.add_callback('bootstrapper','','labware', {bootstrapper:['bootstrapper']})
@@ -783,8 +788,8 @@ if __name__ == '__main__':
         labware_client.add_callback('frontend','','labware', {none:['None']})
 
 
-        # ADD METACALLBACKS VIA HARNESS:
-        print(datetime.datetime.now(),' - DEFINE AND ADD META-CALLBACKS VIA HARNESS ','* * '*10)
+        # ADD METACALLBACKS
+        print(datetime.datetime.now(),' - DEFINE AND ADD META-CALLBACKS ','* * '*10)
         def on_connect(from_,session_id):
             print(datetime.datetime.now(),' - labware_client.on_connect')
             print('\n\targs: ',locals(),'\n')
@@ -804,9 +809,7 @@ if __name__ == '__main__':
         labware_client.set_meta_callback(labware_client.id,'','labware',{'on_disconnect':on_disconnect})
         labware_client.set_meta_callback(labware_client.id,'','labware',{'on_empty_queue':on_empty_queue})
 
-        # CONNECT TO DRIVERS:
-        #print('*\t*\t* connect to drivers\t*\t*\t*')
-        #driver_harness.connect(publisher.id,'smoothie',None)
+        # CONNECT TO DRIVERS
 
         print('\nEND INIT...\n')
 
