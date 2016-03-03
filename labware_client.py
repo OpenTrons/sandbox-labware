@@ -443,16 +443,6 @@ class LabwareClient():
         self.driver_dict[name].connect(from_,session_id)
 
 
-    #def disconnect(self, from_, session_id, name, param):
-    #   """
-    #   name: name of driver
-    #   param: n/a
-    #   """
-    #   print(datetime.datetime.now(),' - labware_harness.disconnect:')
-    #   print('\n\targs: ',locals(),'\n')
-    #   self.driver_dict.get(name).disconnect(session_id)
-
-
     def driver_close(self, from_, session_id, name, param):
         """
         name: name of driver
@@ -461,17 +451,6 @@ class LabwareClient():
         print(datetime.datetime.now(),' - LabwareClient.driver_close:')
         print('\n\targs: ',locals(),'\n')
         self.driver_dict.get(name).close(from_,session_id)
-
-
-    #def commands(self, from_, name, param):
-    #   """
-    #   name: name of driver
-    #   param: n/a
-    #   """
-    #   print(datetime.datetime.now(),' - driver_harness.commands:')
-    #   print('\tname: ',name)
-    #   print('\tparam: ',param)
-    #   self._publisher.publish(from_,from_,'driver',name,'commands',self.driver_dict.get(name).commands())
 
 
     def meta_commands(self, from_, session_id, name, param):
@@ -487,30 +466,6 @@ class LabwareClient():
         else:
             self.publish(from_,from_,session_id,'labware',name,'meta_commands',return_list)
         return return_list
-
-
-    #def configs(self, from_, name, param):
-    #   """
-    #   name: name of driver
-    #   param: n/a
-    #   """
-    #   print(datetime.datetime.now(),' - driver_harness.meta_commands:')
-    #   print('\tname: ',name)
-    #   print('\tparam: ',param)
-    #   self._publisher.publish(from_,from_,'driver',name,'configs',self.driver_dict.get(name).configs())
-
-
-    #def set_config(self, from_, name, param):
-    #   """
-    #   name: name
-    #   param: { config name : config value }
-    #   """
-    #   print(datetime.datetime.now(),' - driver_harness.meta_commands:')
-    #   print('\tname: ',str(name))
-    #   print('\tparam: ',str(param))
-    #   if isinstance(param,dict):
-    #       self.driver_dict.get(name).set_config(list(param)[0],list(param.values)[0])
-    #   self._publisher.publish(from_,from_,'driver',name,'configs',self.driver_dict.get(name).configs())
 
 
     def meta_command(self, from_, session_id, data):
