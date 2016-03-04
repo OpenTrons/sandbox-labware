@@ -101,7 +101,6 @@ class WampComponent(wamp.ApplicationSession):
 class LabwareClient():
 
     def __init__(self):
-        #__init__ VARIABLES FROM HARNESS
         print(datetime.datetime.now(),' - LabwareClient.__init__:')
         print('\n\targs: ',locals(),'\n')
         self.driver_dict = {}
@@ -121,13 +120,11 @@ class LabwareClient():
             'meta_commands' : lambda from_,session_id,name,param: self.meta_commands(from_,session_id,name,param)
         }
 
-        #__init__ VARIALBES FROM SUBSCRIBER
         self.in_dispatcher = {
             'command': lambda from_,session_id,data: self.send_command(from_,session_id,data),
             'meta': lambda from_,session_id,data: self.meta_command(from_,session_id,data)
         }
 
-        #__init__ VARIALBES FROM PUBLISHER
         self.topic = {
             'frontend' : 'com.opentrons.frontend',
             'driver' : 'com.opentrons.driver',
@@ -166,15 +163,12 @@ class LabwareClient():
                     # opportunity to filter, not actually used
                     self.in_dispatcher[dictum['type']](dictum['from'],dictum['sessionID'],dictum['data'])
                 else:
-                    print(datetime.datetime.now(),' - {error:malformed message, type not in in_dispatcher}\n\r',sys.exc_info())
+                    print(datetime.datetime.now(),' - ERROR:\n\r',sys.exc_info())
                     print('type: ',dictum['type'])
-                    return '{error,malformed message, type not in in_dispatcher}'
             else:
-                print(datetime.datetime.now(),' - {error:subscriber.dispatch_message type or data error}\n\r',sys.exc_info())
-                return '{error:subscriber.dispatch_message type or data error}'
+                print(datetime.datetime.now(),' - ERROR:\n\r',sys.exc_info())
         except:
-            print(datetime.datetime.now(),' - {error:general subscriber.dispatch_message error}\n\r',sys.exc_info())
-            return '{error:general subscriber.dispatch_message error}'
+            print(datetime.datetime.now(),' - ERROR:\n\r',sys.exc_info())
 
 
     # FUNCTIONS FROM PUBLISHER
