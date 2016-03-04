@@ -258,7 +258,7 @@ class LabwareClient():
                 param = ''
             if self.session_factory is not None:
                 if self.session_factory._myAppSession is not None:
-                    msg = {'type':type_,'to':to,'sessionID':session_id,'from':self.id,'data':{'name':name,'message':{message:param}}}
+                    msg = {'time':datetime.datetime.now(),'type':type_,'to':to,'sessionID':session_id,'from':self.id,'data':{'name':name,'message':{message:param}}}
                     try:
                         if topic in self.topic:
                             print('TOPIC: ',self.topic)
